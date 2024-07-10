@@ -1,5 +1,9 @@
 # RuntimeProfiler
 
+![GitHub all releases](https://img.shields.io/github/downloads/7orivorian/RuntimeProfiler/total?style=flat-square)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/7orivorian/RuntimeProfiler?style=flat-square)
+[![](https://jitci.com/gh/7orivorian/RuntimeProfiler/svg)](https://jitci.com/gh/7orivorian/RuntimeProfiler)
+
 [7orivorian's](https://github.com/7orivorian) RuntimeProfiler enables
 performance monitoring for Java applications through execution time tracking and
 data export.
