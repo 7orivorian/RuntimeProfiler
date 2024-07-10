@@ -6,13 +6,30 @@
 
     <groupId>dev.tori.runtimeprofiler</groupId>
     <artifactId>RuntimeProfiler</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>https://www.mit.edu/~amini/LICENSE.md</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>7orivorian</id>
+            <name>Tori Vii</name>
+            <url>https://7ori.dev</url>
+        </developer>
+    </developers>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.jetbrains</groupId>
@@ -28,4 +45,20 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>  <!-- Create sources.jar -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
