@@ -22,6 +22,7 @@
 package dev.tori.runtimeprofiler;
 
 import dev.tori.runtimeprofiler.util.Stopwatch;
+import dev.tori.runtimeprofiler.util.UnitUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
@@ -89,5 +90,21 @@ public class LocData {
 
     public long visits() {
         return visits;
+    }
+
+    /**
+     * @since 1.1.0
+     */
+    public String toHTMLTable() {
+        String unit = UnitUtil.abbreviate(timeUnit);
+        return "<tr>" +
+                "<th>%s</th>".formatted(loc()) +
+                "<td>%s</td>".formatted(visits()) +
+                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, total, total) +
+                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, avg(), avg()) +
+                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, minTime, minTime) +
+                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, maxTime, maxTime) +
+                "<td>%s</td>".formatted(path()) +
+                "</tr>";
     }
 }
