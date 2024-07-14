@@ -46,6 +46,11 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>  <!-- Create sources.jar -->
                 <groupId>org.apache.maven.plugins</groupId>
