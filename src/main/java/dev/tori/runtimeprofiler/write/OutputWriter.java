@@ -22,8 +22,8 @@
 package dev.tori.runtimeprofiler.write;
 
 import com.opencsv.CSVWriter;
+import dev.tori.runtimeprofiler.IProfiler;
 import dev.tori.runtimeprofiler.LocData;
-import dev.tori.runtimeprofiler.Profiler;
 import dev.tori.runtimeprofiler.util.IOUtil;
 import dev.tori.runtimeprofiler.util.UnitUtil;
 import org.jetbrains.annotations.Contract;
@@ -35,9 +35,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -48,7 +51,7 @@ public enum OutputWriter {
 
     CSV {
         @Override
-        public void writeToPath(@NotNull Profiler profiler, @NotNull Path path) throws IOException {
+        public void writeToPath(@NotNull IProfiler profiler, @NotNull Path path) throws IOException {
             checkPathExists(path);
             try (CSVWriter writer = new CSVWriter(new FileWriter(new File(String.valueOf(path), generateDateSuffix(profiler.getLabel()) + fileExtension())))) {
                 writer.writeNext(profiler.dataHeaders(), true);
@@ -67,7 +70,7 @@ public enum OutputWriter {
     },
     HTML {
         @Override
-        public void writeToPath(@NotNull Profiler profiler, @NotNull Path path) throws IOException {
+        public void writeToPath(@NotNull IProfiler profiler, @NotNull Path path) throws IOException {
             checkPathExists(path);
 
             String template = IOUtil.readResourceAsString(HTML_TEMPLATE);
@@ -78,6 +81,8 @@ public enum OutputWriter {
             String label = profiler.getLabel();
             String title = label + date;
 
+            template = template.replace("$tableheader", LocData.headerHTML());
+
             template = template.replaceAll("\\$title", title);
             template = template.replaceAll("\\$label", label);
             template = template.replaceAll("\\$date", date);
@@ -85,9 +90,14 @@ public enum OutputWriter {
             template = template.replaceAll("\\$timeunit", unitName.substring(0, unitName.length() - 1));
             template = template.replaceAll("\\$abbrtimeunit", UnitUtil.abbreviate(timingPrecision));
 
+            Set<Map.Entry<String, LocData>> entries = profiler.getEntries();
 
             StringBuilder body = new StringBuilder();
-            profiler.getEntries().forEach(entry -> body.append(entry.getValue().toHTMLTable()));
+            entries.forEach(entry -> {
+                LocData data = entry.getValue();
+                String percent = new DecimalFormat("#.###").format(((double) data.total() / profiler.getTotalRuntime()) * 100);
+                body.append(data.dataHTML(percent));
+            });
             template = template.replaceAll("\\$tablebody", body.toString());
 
             Files.writeString(new File(path.toString(), label + "_" + date + fileExtension()).toPath(), template);
@@ -100,7 +110,7 @@ public enum OutputWriter {
     },
     MARKDOWN {
         @Override
-        public void writeToPath(@NotNull Profiler profiler, @NotNull Path path) throws IOException {
+        public void writeToPath(@NotNull IProfiler profiler, @NotNull Path path) throws IOException {
 
         }
 
@@ -149,7 +159,7 @@ public enum OutputWriter {
         return now.format(formatter);
     }
 
-    public abstract void writeToPath(@NotNull Profiler profiler, @NotNull Path path) throws IOException;
+    public abstract void writeToPath(@NotNull IProfiler profiler, @NotNull Path path) throws IOException;
 
     public abstract String fileExtension();
 

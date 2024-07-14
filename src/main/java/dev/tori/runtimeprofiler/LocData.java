@@ -23,6 +23,8 @@ package dev.tori.runtimeprofiler;
 
 import dev.tori.runtimeprofiler.util.Stopwatch;
 import dev.tori.runtimeprofiler.util.UnitUtil;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
@@ -92,18 +94,47 @@ public class LocData {
         return visits;
     }
 
-    /**
-     * @since 1.1.0
-     */
-    public String toHTMLTable() {
+    @ApiStatus.Internal
+    @NotNull
+    @Contract(value = " -> new", pure = true)
+    public String[] headerArray() {
+        String abbr = UnitUtil.abbreviate(timeUnit);
+        return new String[]{"Location", "Visits", "Total (%s)".formatted(abbr), "Avg (%s)".formatted(abbr), "Min (%s)".formatted(abbr), "Max (%s)".formatted(abbr), "Path"};
+    }
+
+    @ApiStatus.Internal
+    @NotNull
+    public String[] dataArray(@NotNull LocData data) {
+        return new String[]{data.loc(), String.valueOf(data.visits()), String.valueOf(data.total()), String.valueOf(data.avg()), String.valueOf(data.minTime()), String.valueOf(data.maxTime()), data.path()};
+    }
+
+    @ApiStatus.Internal
+    @NotNull
+    public static String headerHTML() {
+        return "<tr>" +
+                "<th>Location</th>" +
+                "<th>Visits</th>" +
+                "<th>Avg (<unitabbr>$abbrtimeunit</unitabbr>)</th>" +
+                "<th>Min (<unitabbr>$abbrtimeunit</unitabbr>)</th>" +
+                "<th>Max (<unitabbr>$abbrtimeunit</unitabbr>)</th>" +
+                "<th>Runtime (<unitabbr>$abbrtimeunit</unitabbr>)</th>" +
+                "<th>% of Runtime</th>" +
+                "<th>Full Path</th>" +
+                "</tr>";
+    }
+
+    @ApiStatus.Internal
+    @NotNull
+    public String dataHTML(String percent) {
         String unit = UnitUtil.abbreviate(timeUnit);
         return "<tr>" +
                 "<th>%s</th>".formatted(loc()) +
                 "<td>%s</td>".formatted(visits()) +
-                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, total, total) +
                 "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, avg(), avg()) +
                 "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, minTime, minTime) +
                 "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, maxTime, maxTime) +
+                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, total, total) +
+                "<td>%s</td>".formatted(percent + "%") +
                 "<td>%s</td>".formatted(path()) +
                 "</tr>";
     }

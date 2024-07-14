@@ -22,8 +22,9 @@
 package dev.tori.runtimeprofiler.util;
 
 import dev.tori.runtimeprofiler.write.OutputWriter;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
@@ -32,9 +33,15 @@ import java.util.Scanner;
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
  * @since 1.1.0
  */
-public class IOUtil {
+@ApiStatus.Internal
+public final class IOUtil {
 
-    public static String readResourceAsString(String resourcePath) throws IOException {
+    @Contract(pure = true)
+    private IOUtil() {
+
+    }
+
+    public static String readResourceAsString(String resourcePath) {
         // Use the class loader to get the resource as an InputStream
         InputStream inputStream = OutputWriter.class.getClassLoader().getResourceAsStream(resourcePath);
 
