@@ -22,6 +22,8 @@
 package dev.tori.runtimeprofiler.util;
 
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
@@ -30,9 +32,16 @@ import java.util.concurrent.TimeUnit;
  * @since 1.0.0
  */
 @ApiStatus.Internal
-public class UnitUtil {
+public final class UnitUtil {
 
-    public static String abbreviate(TimeUnit timeUnit) {
+    @Contract(pure = true)
+    private UnitUtil() {
+
+    }
+
+    @NotNull
+    @Contract(pure = true)
+    public static String abbreviate(@NotNull TimeUnit timeUnit) {
         return switch (timeUnit) {
             case NANOSECONDS -> "ns";
             case MICROSECONDS -> "us";
