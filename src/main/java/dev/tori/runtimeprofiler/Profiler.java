@@ -61,14 +61,14 @@ public class Profiler implements IProfiler {
     /**
      * Constructs a new profiler with the given {@code label} and {@linkplain TimeUnit time unit}.
      *
-     * @param label    The label for this profiler
-     * @param timeUnit The {@linkplain TimeUnit time unit} for this profiler
+     * @param label     The label for this profiler
+     * @param precision The timing {@linkplain TimeUnit precision} for this profiler
      */
-    public Profiler(String label, TimeUnit timeUnit) {
+    public Profiler(String label, TimeUnit precision) {
         this.label = label;
         this.path = new LinkedList<>();
         this.map = new LinkedHashMap<>();
-        this.factory = new LocDataFactory(timeUnit);
+        this.factory = new LocDataFactory(precision);
         this.started = false;
         this.fullPath = "";
         this.currentLocData = null;
@@ -151,6 +151,13 @@ public class Profiler implements IProfiler {
      */
     public String getLabel() {
         return label;
+    }
+
+    /**
+     * @since 1.1.0
+     */
+    public TimeUnit getTimingPrecision() {
+        return factory.timeUnit();
     }
 
     public String getCurrentLocation() {
