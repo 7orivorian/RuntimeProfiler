@@ -24,6 +24,7 @@ package dev.tori.runtimeprofiler.write;
 import com.opencsv.CSVWriter;
 import dev.tori.runtimeprofiler.LocData;
 import dev.tori.runtimeprofiler.Profiler;
+import dev.tori.runtimeprofiler.util.IOUtil;
 import dev.tori.runtimeprofiler.util.UnitUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -32,8 +33,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -71,18 +70,7 @@ public enum OutputWriter {
         public void writeToPath(@NotNull Profiler profiler, @NotNull Path path) throws IOException {
             checkPathExists(path);
 
-            String templatePath = HTML_TEMPLATE;
-            URL resource = OutputWriter.class.getClassLoader().getResource(templatePath);
-            if (resource == null) {
-                throw new FileNotFoundException(templatePath);
-            }
-
-            String template;
-            try {
-                template = Files.readString(Path.of(resource.toURI()));
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
+            String template = IOUtil.readResourceAsString(HTML_TEMPLATE);
             TimeUnit timingPrecision = profiler.getTimingPrecision();
 
             String date = generateDateSuffix();
@@ -90,20 +78,19 @@ public enum OutputWriter {
             String label = profiler.getLabel();
             String title = label + date;
 
-            String htmlString = template;
-            htmlString = htmlString.replaceAll("\\$title", title);
-            htmlString = htmlString.replaceAll("\\$label", label);
-            htmlString = htmlString.replaceAll("\\$date", date);
+            template = template.replaceAll("\\$title", title);
+            template = template.replaceAll("\\$label", label);
+            template = template.replaceAll("\\$date", date);
             String unitName = timingPrecision.name().toLowerCase(Locale.ROOT);
-            htmlString = htmlString.replaceAll("\\$timeunit", unitName.substring(0, unitName.length() - 1));
-            htmlString = htmlString.replaceAll("\\$abbrtimeunit", UnitUtil.abbreviate(timingPrecision));
+            template = template.replaceAll("\\$timeunit", unitName.substring(0, unitName.length() - 1));
+            template = template.replaceAll("\\$abbrtimeunit", UnitUtil.abbreviate(timingPrecision));
 
 
             StringBuilder body = new StringBuilder();
             profiler.getEntries().forEach(entry -> body.append(entry.getValue().toHTMLTable()));
-            htmlString = htmlString.replaceAll("\\$tablebody", body.toString());
+            template = template.replaceAll("\\$tablebody", body.toString());
 
-            Files.writeString(new File(path.toString(), label + "_" + date + fileExtension()).toPath(), htmlString);
+            Files.writeString(new File(path.toString(), label + "_" + date + fileExtension()).toPath(), template);
         }
 
         @Override
