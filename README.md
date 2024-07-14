@@ -83,7 +83,7 @@ Packaged jar file can be found in the `./target/` directory.
 ```java
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Profiler profiler = new Profiler("MyProfiler");
         profiler.start();
 
