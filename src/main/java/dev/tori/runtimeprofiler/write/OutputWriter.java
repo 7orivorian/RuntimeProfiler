@@ -111,7 +111,36 @@ public enum OutputWriter {
     MARKDOWN {
         @Override
         public void writeToPath(@NotNull IProfiler profiler, @NotNull Path path) throws IOException {
+            checkPathExists(path);
 
+            String template = IOUtil.readResourceAsString(MD_TEMPLATE);
+            TimeUnit timingPrecision = profiler.getTimingPrecision();
+
+            String date = generateDateSuffix();
+
+            String label = profiler.getLabel();
+            String title = label + date;
+
+            template = template.replace("$tableheader", LocData.headerMD());
+
+            template = template.replaceAll("\\$title", title);
+            template = template.replaceAll("\\$label", label);
+            template = template.replaceAll("\\$date", date);
+            String unitName = timingPrecision.name().toLowerCase(Locale.ROOT);
+            template = template.replaceAll("\\$timeunit", unitName.substring(0, unitName.length() - 1));
+            template = template.replaceAll("\\$abbrtimeunit", UnitUtil.abbreviate(timingPrecision));
+
+            Set<Map.Entry<String, LocData>> entries = profiler.getEntries();
+
+            StringBuilder body = new StringBuilder();
+            entries.forEach(entry -> {
+                LocData data = entry.getValue();
+                String percent = new DecimalFormat("#.###").format(((double) data.total() / profiler.getTotalRuntime()) * 100);
+                body.append(data.dataMD(percent));
+            });
+            template = template.replaceAll("\\$tablebody", body.toString());
+
+            Files.writeString(new File(path.toString(), label + "_" + date + fileExtension()).toPath(), template);
         }
 
         @Override
@@ -121,6 +150,7 @@ public enum OutputWriter {
     };
 
     private static final String HTML_TEMPLATE = "templates/template.html";
+    private static final String MD_TEMPLATE = "templates/template.md";
 
     @Contract(pure = true)
     OutputWriter() {

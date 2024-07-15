@@ -138,4 +138,34 @@ public class LocData {
                 "<td>%s</td>".formatted(path()) +
                 "</tr>";
     }
+
+    @ApiStatus.Internal
+    @NotNull
+    public static String headerMD() {
+        return "<tr>" +
+                "<th>Location</th>" +
+                "<th>Visits</th>" +
+                "<th>Avg ($abbrtimeunit)</th>" +
+                "<th>Min ($abbrtimeunit)</th>" +
+                "<th>Max ($abbrtimeunit)</th>" +
+                "<th>Runtime ($abbrtimeunit)</th>" +
+                "<th>% of Runtime</th>" +
+                "<th>Full Path</th>" +
+                "</tr>";
+    }
+
+    @ApiStatus.Internal
+    @NotNull
+    public String dataMD(String percent) {
+        return "<tr>" +
+                "<th>%s</th>".formatted(loc()) +
+                "<td>%s</td>".formatted(visits()) +
+                "<td>%s</td>".formatted(avg()) +
+                "<td>%s</td>".formatted(minTime) +
+                "<td>%s</td>".formatted(maxTime) +
+                "<td>%s</td>".formatted(total) +
+                "<td>%s</td>".formatted(percent + "%") +
+                "<td>%s</td>".formatted(path()) +
+                "</tr>";
+    }
 }
