@@ -21,17 +21,25 @@
 
 package dev.tori.runtimeprofiler.config;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
  * @since 1.0.0
  */
-public class Config {
+public final class Config {
 
     private static String pathSeparator = "/";
     private static TimeUnit defaultTimeUnit = TimeUnit.NANOSECONDS;
 
+    @Contract(pure = true)
+    private Config() {
+
+    }
+
+    @Contract(pure = true)
     public static String pathSeparator() {
         return pathSeparator;
     }
@@ -40,6 +48,7 @@ public class Config {
         Config.pathSeparator = pathSeparator;
     }
 
+    @Contract(pure = true)
     public static TimeUnit defaultTimeUnit() {
         return defaultTimeUnit;
     }
