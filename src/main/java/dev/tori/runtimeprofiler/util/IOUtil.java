@@ -21,35 +21,37 @@
 
 package dev.tori.runtimeprofiler.util;
 
+import dev.tori.runtimeprofiler.write.OutputWriter;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.TimeUnit;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
 /**
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
- * @since 1.0.0
+ * @since 1.1.0
  */
 @ApiStatus.Internal
-public final class UnitUtil {
+public final class IOUtil {
 
     @Contract(pure = true)
-    private UnitUtil() {
+    private IOUtil() {
 
     }
 
-    @NotNull
-    @Contract(pure = true)
-    public static String abbreviate(@NotNull TimeUnit timeUnit) {
-        return switch (timeUnit) {
-            case NANOSECONDS -> "ns";
-            case MICROSECONDS -> "us";
-            case MILLISECONDS -> "ms";
-            case SECONDS -> "s";
-            case MINUTES -> "m";
-            case HOURS -> "h";
-            case DAYS -> "d";
-        };
+    public static String readResourceAsString(String resourcePath) {
+        // Use the class loader to get the resource as an InputStream
+        InputStream inputStream = OutputWriter.class.getClassLoader().getResourceAsStream(resourcePath);
+
+        if (inputStream == null) {
+            throw new IllegalArgumentException("Resource not found: " + resourcePath);
+        }
+
+        // Use Scanner to read the InputStream into a String
+        try (Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8)) {
+            return scanner.useDelimiter("\\A").next();
+        }
     }
 }

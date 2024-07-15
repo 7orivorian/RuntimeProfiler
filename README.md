@@ -16,14 +16,14 @@ data export.
 - **Context switching:**
     - Compare performance between different code sections.
 - **Detailed data export:**
-    - Write profiling data to a CSV file for in-depth analysis, reporting, &
+    - Output profiling data for in-depth analysis, reporting, &
       graphing.
 
 # Importing
 
 ### Maven
 
-* Include JitPack in your maven build file
+* Include JitPack in your maven build file (usually `pom.xml`)
 
 ```xml
 
@@ -35,14 +35,14 @@ data export.
 </repositories>
 ```
 
-* Add RuntimeProfiler as a dependency
+* Add the dependency
 
 ```xml
 
 <dependency>
     <groupId>com.github.7orivorian</groupId>
     <artifactId>RuntimeProfiler</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -62,14 +62,14 @@ repositories {
 
 ```gradle
 dependencies {
-    implementation 'com.github.7orivorian:RuntimeProfiler:1.0.0'
+    implementation 'com.github.7orivorian:RuntimeProfiler:1.1.0'
 }
 ```
 
 ### Other
 
 Download a `.jar` file from
-[releases](https://github.com/7orivorian/RuntimeProfiler/releases/tag/1.0.0).
+[releases](https://github.com/7orivorian/RuntimeProfiler/releases/tag/1.1.0).
 
 # Building
 
@@ -83,7 +83,7 @@ Packaged jar file can be found in the `./target/` directory.
 ```java
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Profiler profiler = new Profiler("MyProfiler");
         profiler.start();
 
@@ -101,7 +101,7 @@ public class Main {
 
         profiler.stop();
 
-        DataWriter.writeToDir(profiler, new File("output_directory").toPath());
+        OutputWriter.HTML.writeToPath(profiler, new File("<output_dir>").toPath());
     }
 }
 ```

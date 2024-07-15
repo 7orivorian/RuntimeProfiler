@@ -61,19 +61,20 @@ public class Profiler implements IProfiler {
     /**
      * Constructs a new profiler with the given {@code label} and {@linkplain TimeUnit time unit}.
      *
-     * @param label    The label for this profiler
-     * @param timeUnit The {@linkplain TimeUnit time unit} for this profiler
+     * @param label     The label for this profiler
+     * @param precision The timing {@linkplain TimeUnit precision} for this profiler
      */
-    public Profiler(String label, TimeUnit timeUnit) {
+    public Profiler(String label, TimeUnit precision) {
         this.label = label;
         this.path = new LinkedList<>();
         this.map = new LinkedHashMap<>();
-        this.factory = new LocDataFactory(timeUnit);
+        this.factory = new LocDataFactory(precision);
         this.started = false;
         this.fullPath = "";
         this.currentLocData = null;
     }
 
+    @ApiStatus.Internal
     @NotNull
     @Override
     @Contract(value = " -> new", pure = true)
@@ -82,6 +83,7 @@ public class Profiler implements IProfiler {
         return new String[]{"Location", "Visits", "Total (%s)".formatted(abbr), "Avg (%s)".formatted(abbr), "Min (%s)".formatted(abbr), "Max (%s)".formatted(abbr), "Path"};
     }
 
+    @ApiStatus.Internal
     @NotNull
     @Override
     public String[] toArray(@NotNull LocData data) {
@@ -102,6 +104,7 @@ public class Profiler implements IProfiler {
         path.clear();
         fullPath = "";
         started = true;
+        push("root");
     }
 
     /**
@@ -112,6 +115,7 @@ public class Profiler implements IProfiler {
     @Override
     public void stop() {
         checkStarted();
+        pop();
         started = false;
         if (!fullPath.isEmpty()) {
             throw new IllegalStateException("Profiler tick ended before path was fully popped (remainder %s). Mismatched push/pop?".formatted(fullPath));
@@ -149,8 +153,22 @@ public class Profiler implements IProfiler {
     /**
      * @return The label of this profiler.
      */
+    @Override
     public String getLabel() {
         return label;
+    }
+
+    /**
+     * @since 1.1.0
+     */
+    @Override
+    public TimeUnit getTimingPrecision() {
+        return factory.timeUnit();
+    }
+
+    @Override
+    public Set<Map.Entry<String, LocData>> getEntries() {
+        return Collections.unmodifiableSet(map.entrySet());
     }
 
     public String getCurrentLocation() {
@@ -165,8 +183,12 @@ public class Profiler implements IProfiler {
         return currentLocData;
     }
 
-    public Set<Map.Entry<String, LocData>> getEntries() {
-        return Collections.unmodifiableSet(map.entrySet());
+    @Override
+    public long getTotalRuntime() {
+        if (started) {
+            throw new IllegalStateException("Profiler is still running");
+        }
+        return map.get("root").total();
     }
 
     /**

@@ -23,6 +23,10 @@ package dev.tori.runtimeprofiler;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
  * @since 1.0.0
@@ -47,4 +51,24 @@ public interface IProfiler {
         pop();
         push(location);
     }
+
+    /**
+     * @since 1.1.0
+     */
+    String getLabel();
+
+    /**
+     * @since 1.1.0
+     */
+    TimeUnit getTimingPrecision();
+
+    /**
+     * @since 1.1.0
+     */
+    Set<Map.Entry<String, LocData>> getEntries();
+
+    /**
+     * @since 1.1.0
+     */
+    long getTotalRuntime();
 }
