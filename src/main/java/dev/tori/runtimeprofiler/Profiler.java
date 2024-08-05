@@ -192,13 +192,6 @@ public class Profiler implements IProfiler {
         return map.get("root").total();
     }
 
-    @Override
-    public long getEstimatedProfilerOverhead() {
-        if (started) {
-            throw new IllegalStateException("Profiler is still running");
-        }
-    }
-
     /**
      * @param location the location to check
      * @throws IllegalArgumentException if the given {@code location} contains the
