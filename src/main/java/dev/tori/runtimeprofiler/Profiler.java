@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Standard implementation of {@link IProfiler}.
@@ -189,6 +190,13 @@ public class Profiler implements IProfiler {
             throw new IllegalStateException("Profiler is still running");
         }
         return map.get("root").total();
+    }
+
+    @Override
+    public long getEstimatedProfilerOverhead() {
+        if (started) {
+            throw new IllegalStateException("Profiler is still running");
+        }
     }
 
     /**

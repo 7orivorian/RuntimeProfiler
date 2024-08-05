@@ -98,6 +98,8 @@ public enum OutputWriter {
                 String percent = new DecimalFormat("#.###").format(((double) data.total() / profiler.getTotalRuntime()) * 100);
                 body.append(data.dataHTML(percent));
             });
+
+            template = template.replaceAll("\\$est_overhead", String.valueOf(profiler.getEstimatedProfilerOverhead()));
             template = template.replaceAll("\\$tablebody", body.toString());
 
             Files.writeString(new File(path.toString(), label + "_" + date + fileExtension()).toPath(), template);

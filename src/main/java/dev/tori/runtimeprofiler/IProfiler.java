@@ -71,4 +71,9 @@ public interface IProfiler {
      * @since 1.1.0
      */
     long getTotalRuntime();
+
+    /**
+     * @since 1.2.0
+     */
+    long getEstimatedProfilerOverhead();
 }
