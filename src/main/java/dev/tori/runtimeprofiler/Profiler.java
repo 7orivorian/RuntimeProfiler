@@ -22,7 +22,6 @@
 package dev.tori.runtimeprofiler;
 
 import dev.tori.runtimeprofiler.config.Config;
-import dev.tori.runtimeprofiler.util.UnitUtil;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -39,12 +38,15 @@ import java.util.concurrent.TimeUnit;
  */
 public class Profiler implements IProfiler {
 
+    private static final int MAX_DEPTH = 100;
+
     private final String label;
     private final LinkedList<String> path;
     private final LinkedHashMap<String, LocData> map;
     private final LocDataFactory factory;
 
     private boolean started;
+    private int depth;
     private String fullPath;
     private LocData currentLocData;
 
@@ -70,24 +72,9 @@ public class Profiler implements IProfiler {
         this.map = new LinkedHashMap<>();
         this.factory = new LocDataFactory(precision);
         this.started = false;
+        this.depth = 0;
         this.fullPath = "";
         this.currentLocData = null;
-    }
-
-    @ApiStatus.Internal
-    @NotNull
-    @Override
-    @Contract(value = " -> new", pure = true)
-    public String[] dataHeaders() {
-        String abbr = UnitUtil.abbreviate(factory.timeUnit());
-        return new String[]{"Location", "Visits", "Total (%s)".formatted(abbr), "Avg (%s)".formatted(abbr), "Min (%s)".formatted(abbr), "Max (%s)".formatted(abbr), "Path"};
-    }
-
-    @ApiStatus.Internal
-    @NotNull
-    @Override
-    public String[] toArray(@NotNull LocData data) {
-        return new String[]{data.loc(), String.valueOf(data.visits()), String.valueOf(data.total()), String.valueOf(data.avg()), String.valueOf(data.minTime()), String.valueOf(data.maxTime()), data.path()};
     }
 
     /**
@@ -129,6 +116,9 @@ public class Profiler implements IProfiler {
         if (!fullPath.isEmpty()) {
             fullPath += Config.pathSeparator();
         }
+        if (++depth > MAX_DEPTH) {
+            throw new IllegalStateException("Maximum push depth of %s exceeded".formatted(MAX_DEPTH));
+        }
         fullPath += location;
         path.push(fullPath);
         map.computeIfAbsent(fullPath, key -> factory.create(fullPath)).push();
@@ -144,10 +134,21 @@ public class Profiler implements IProfiler {
         if (current == null) {
             throw new IllegalStateException("Current LocData is null. Likely due to a mismatched push/pop");
         }
+        depth--;
         current.pop();
         path.pop();
         fullPath = path.isEmpty() ? "" : path.getFirst();
         currentLocData = null;
+    }
+
+    @Override
+    public boolean swapIf(@NotNull String location) {
+        if (depth == 1) {
+            push(location);
+            return false;
+        }
+        swap(location);
+        return true;
     }
 
     /**
@@ -171,8 +172,16 @@ public class Profiler implements IProfiler {
         return Collections.unmodifiableSet(map.entrySet());
     }
 
-    public String getCurrentLocation() {
-        return path.isEmpty() ? "" : path.getFirst();
+    @Override
+    public long getTotalRuntime() {
+        if (started) {
+            throw new IllegalStateException("Profiler is still running");
+        }
+        return map.get("root").total();
+    }
+
+    public String getFullPath() {
+        return fullPath;
     }
 
     @Nullable
@@ -181,14 +190,6 @@ public class Profiler implements IProfiler {
             currentLocData = map.get(fullPath);
         }
         return currentLocData;
-    }
-
-    @Override
-    public long getTotalRuntime() {
-        if (started) {
-            throw new IllegalStateException("Profiler is still running");
-        }
-        return map.get("root").total();
     }
 
     /**

@@ -54,11 +54,11 @@ public enum OutputWriter {
         public void writeToPath(@NotNull IProfiler profiler, @NotNull Path path) throws IOException {
             checkPathExists(path);
             try (CSVWriter writer = new CSVWriter(new FileWriter(new File(String.valueOf(path), generateDateSuffix(profiler.getLabel()) + fileExtension())))) {
-                writer.writeNext(profiler.dataHeaders(), true);
+                writer.writeNext(LocData.csvHeaders(profiler.getTimingPrecision()), true);
                 profiler.getEntries().forEach(entry -> {
                     LocData data = entry.getValue();
 
-                    writer.writeNext(profiler.toArray(data), true);
+                    writer.writeNext(data.csvRow(), true);
                 });
             }
         }

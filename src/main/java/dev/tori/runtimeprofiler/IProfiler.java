@@ -33,12 +33,6 @@ import java.util.concurrent.TimeUnit;
  */
 public interface IProfiler {
 
-    @NotNull
-    String[] dataHeaders();
-
-    @NotNull
-    String[] toArray(@NotNull LocData data);
-
     void start();
 
     void stop();
@@ -51,6 +45,12 @@ public interface IProfiler {
         pop();
         push(location);
     }
+
+    /**
+     * Can swap even if fully popped.
+     * @param location
+     */
+    boolean swapIf(@NotNull String location);
 
     /**
      * @since 1.1.0

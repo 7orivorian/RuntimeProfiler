@@ -94,18 +94,23 @@ public class LocData {
         return visits;
     }
 
+    @NotNull
+    public TimeUnit timeUnit() {
+        return timeUnit;
+    }
+
     @ApiStatus.Internal
     @NotNull
-    @Contract(value = " -> new", pure = true)
-    public String[] headerArray() {
+    @Contract("_ -> new")
+    public static String @NotNull [] csvHeaders(TimeUnit timeUnit) {
         String abbr = UnitUtil.abbreviate(timeUnit);
         return new String[]{"Location", "Visits", "Total (%s)".formatted(abbr), "Avg (%s)".formatted(abbr), "Min (%s)".formatted(abbr), "Max (%s)".formatted(abbr), "Path"};
     }
 
     @ApiStatus.Internal
     @NotNull
-    public String[] dataArray(@NotNull LocData data) {
-        return new String[]{data.loc(), String.valueOf(data.visits()), String.valueOf(data.total()), String.valueOf(data.avg()), String.valueOf(data.minTime()), String.valueOf(data.maxTime()), data.path()};
+    public String[] csvRow() {
+        return new String[]{loc(), String.valueOf(visits()), String.valueOf(total()), String.valueOf(avg()), String.valueOf(minTime()), String.valueOf(maxTime()), path()};
     }
 
     @ApiStatus.Internal
