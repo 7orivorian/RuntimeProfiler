@@ -6,7 +6,7 @@
 
 > [!WARNING]
 > This is a legacy version maintained only for security. If you require a feature from a non-latest version, please open
-> an issue requesting that feature in the latest version.
+> an issue requesting that feature.
 
 [7orivorian's](https://github.com/7orivorian) RuntimeProfiler enables
 performance monitoring for Java applications through execution time tracking and
