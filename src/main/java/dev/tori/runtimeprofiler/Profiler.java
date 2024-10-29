@@ -22,7 +22,6 @@
 package dev.tori.runtimeprofiler;
 
 import dev.tori.runtimeprofiler.config.Config;
-import dev.tori.runtimeprofiler.util.UnitUtil;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -39,12 +38,20 @@ import java.util.concurrent.TimeUnit;
  */
 public class Profiler implements IProfiler {
 
+    /**
+     * @deprecated for removal in v1.3.0. Use {@link Config#defaultMaxDepth()} instead.
+     */
+    @Deprecated(since = "1.2.0", forRemoval = true)
+    private static final int MAX_DEPTH = 100;
+
     private final String label;
     private final LinkedList<String> path;
     private final LinkedHashMap<String, LocData> map;
     private final LocDataFactory factory;
+    private final int maxDepth;
 
     private boolean started;
+    private int depth;
     private String fullPath;
     private LocData currentLocData;
 
@@ -65,29 +72,30 @@ public class Profiler implements IProfiler {
      * @param precision The timing {@linkplain TimeUnit precision} for this profiler
      */
     public Profiler(String label, TimeUnit precision) {
+        this(label, precision, Config.defaultMaxDepth());
+    }
+
+    /**
+     * Constructs a new profiler with the given {@code label} and {@linkplain TimeUnit time unit}.
+     *
+     * @param label     The label for this profiler.
+     * @param precision The timing {@linkplain TimeUnit precision} for this profiler.
+     * @param maxDepth  The maximum path depth of this profiler; must be greater than {@code 0}.
+     * @since 1.2.0
+     */
+    public Profiler(@NotNull String label, @NotNull TimeUnit precision, int maxDepth) {
+        if (maxDepth <= 0) {
+            throw new IllegalArgumentException("maxDepth must be greater than zero");
+        }
         this.label = label;
         this.path = new LinkedList<>();
         this.map = new LinkedHashMap<>();
         this.factory = new LocDataFactory(precision);
+        this.maxDepth = maxDepth;
         this.started = false;
+        this.depth = 0;
         this.fullPath = "";
         this.currentLocData = null;
-    }
-
-    @ApiStatus.Internal
-    @NotNull
-    @Override
-    @Contract(value = " -> new", pure = true)
-    public String[] dataHeaders() {
-        String abbr = UnitUtil.abbreviate(factory.timeUnit());
-        return new String[]{"Location", "Visits", "Total (%s)".formatted(abbr), "Avg (%s)".formatted(abbr), "Min (%s)".formatted(abbr), "Max (%s)".formatted(abbr), "Path"};
-    }
-
-    @ApiStatus.Internal
-    @NotNull
-    @Override
-    public String[] toArray(@NotNull LocData data) {
-        return new String[]{data.loc(), String.valueOf(data.visits()), String.valueOf(data.total()), String.valueOf(data.avg()), String.valueOf(data.minTime()), String.valueOf(data.maxTime()), data.path()};
     }
 
     /**
@@ -129,9 +137,12 @@ public class Profiler implements IProfiler {
         if (!fullPath.isEmpty()) {
             fullPath += Config.pathSeparator();
         }
+        if (++depth > maxDepth) {
+            throw new IllegalStateException("Maximum path depth of %s exceeded".formatted(maxDepth));
+        }
         fullPath += location;
         path.push(fullPath);
-        map.computeIfAbsent(fullPath, key -> factory.create(fullPath)).push();
+        map.computeIfAbsent(fullPath, key -> factory.create(fullPath, depth)).push();
     }
 
     @Override
@@ -144,10 +155,21 @@ public class Profiler implements IProfiler {
         if (current == null) {
             throw new IllegalStateException("Current LocData is null. Likely due to a mismatched push/pop");
         }
+        depth--;
         current.pop();
         path.pop();
         fullPath = path.isEmpty() ? "" : path.getFirst();
         currentLocData = null;
+    }
+
+    @Override
+    public boolean swapIf(@NotNull String location) {
+        if (depth == 1) {
+            push(location);
+            return false;
+        }
+        swap(location);
+        return true;
     }
 
     /**
@@ -171,8 +193,16 @@ public class Profiler implements IProfiler {
         return Collections.unmodifiableSet(map.entrySet());
     }
 
-    public String getCurrentLocation() {
-        return path.isEmpty() ? "" : path.getFirst();
+    @Override
+    public long getTotalRuntime() {
+        if (started) {
+            throw new IllegalStateException("Profiler is still running");
+        }
+        return map.get("root").total();
+    }
+
+    public String getFullPath() {
+        return fullPath;
     }
 
     @Nullable
@@ -183,12 +213,12 @@ public class Profiler implements IProfiler {
         return currentLocData;
     }
 
-    @Override
-    public long getTotalRuntime() {
-        if (started) {
-            throw new IllegalStateException("Profiler is still running");
-        }
-        return map.get("root").total();
+    /**
+     * @return the current path {@linkplain #depth}.
+     * @since 1.2.0
+     */
+    public int getCurrentDepth() {
+        return depth;
     }
 
     /**

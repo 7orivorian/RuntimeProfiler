@@ -31,12 +31,31 @@ import java.util.concurrent.TimeUnit;
  */
 public final class Config {
 
+    /**
+     * @since 1.2.0
+     */
+    private static int defaultMaxDepth = 100;
     private static String pathSeparator = "/";
     private static TimeUnit defaultTimeUnit = TimeUnit.NANOSECONDS;
 
     @Contract(pure = true)
     private Config() {
 
+    }
+
+    /**
+     * @since 1.2.0
+     */
+    @Contract(pure = true)
+    public static int defaultMaxDepth() {
+        return defaultMaxDepth;
+    }
+
+    /**
+     * @since 1.2.0
+     */
+    public static void setDefaultMaxDepth(int defaultMaxDepth) {
+        Config.defaultMaxDepth = defaultMaxDepth;
     }
 
     @Contract(pure = true)
