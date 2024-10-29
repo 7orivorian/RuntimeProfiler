@@ -38,12 +38,17 @@ import java.util.concurrent.TimeUnit;
  */
 public class Profiler implements IProfiler {
 
+    /**
+     * @deprecated for removal in v1.3.0. Use {@link Config#defaultMaxDepth()} instead.
+     */
+    @Deprecated(since = "1.2.0", forRemoval = true)
     private static final int MAX_DEPTH = 100;
 
     private final String label;
     private final LinkedList<String> path;
     private final LinkedHashMap<String, LocData> map;
     private final LocDataFactory factory;
+    private final int maxDepth;
 
     private boolean started;
     private int depth;
@@ -67,10 +72,26 @@ public class Profiler implements IProfiler {
      * @param precision The timing {@linkplain TimeUnit precision} for this profiler
      */
     public Profiler(String label, TimeUnit precision) {
+        this(label, precision, Config.defaultMaxDepth());
+    }
+
+    /**
+     * Constructs a new profiler with the given {@code label} and {@linkplain TimeUnit time unit}.
+     *
+     * @param label     The label for this profiler.
+     * @param precision The timing {@linkplain TimeUnit precision} for this profiler.
+     * @param maxDepth  The maximum path depth of this profiler; must be greater than {@code 0}.
+     * @since 1.2.0
+     */
+    public Profiler(@NotNull String label, @NotNull TimeUnit precision, int maxDepth) {
+        if (maxDepth <= 0) {
+            throw new IllegalArgumentException("maxDepth must be greater than zero");
+        }
         this.label = label;
         this.path = new LinkedList<>();
         this.map = new LinkedHashMap<>();
         this.factory = new LocDataFactory(precision);
+        this.maxDepth = maxDepth;
         this.started = false;
         this.depth = 0;
         this.fullPath = "";
@@ -116,12 +137,12 @@ public class Profiler implements IProfiler {
         if (!fullPath.isEmpty()) {
             fullPath += Config.pathSeparator();
         }
-        if (++depth > MAX_DEPTH) {
-            throw new IllegalStateException("Maximum push depth of %s exceeded".formatted(MAX_DEPTH));
+        if (++depth > maxDepth) {
+            throw new IllegalStateException("Maximum path depth of %s exceeded".formatted(maxDepth));
         }
         fullPath += location;
         path.push(fullPath);
-        map.computeIfAbsent(fullPath, key -> factory.create(fullPath)).push();
+        map.computeIfAbsent(fullPath, key -> factory.create(fullPath, depth)).push();
     }
 
     @Override
@@ -190,6 +211,14 @@ public class Profiler implements IProfiler {
             currentLocData = map.get(fullPath);
         }
         return currentLocData;
+    }
+
+    /**
+     * @return the current path {@linkplain #depth}.
+     * @since 1.2.0
+     */
+    public int getCurrentDepth() {
+        return depth;
     }
 
     /**

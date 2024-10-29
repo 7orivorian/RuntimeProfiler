@@ -40,16 +40,34 @@ public class LocData {
     private final @NotNull TimeUnit timeUnit;
     private final @NotNull Stopwatch stopwatch;
 
+    /**
+     * @since 1.2.0
+     */
+    private final int depth;
+
     private long total = 0L;
     private long maxTime = Long.MIN_VALUE;
     private long minTime = Long.MAX_VALUE;
     private long visits = 0L;
 
+
+    /**
+     * @deprecated for removal in v1.2.0. Use {@link LocData#LocData(String, String, TimeUnit, int)} instead.
+     */
+    @Deprecated(since = "1.2.0", forRemoval = true)
     public LocData(@NotNull String path, @NotNull String loc, @NotNull TimeUnit timeUnit) {
+        this(path, loc, timeUnit, -1);
+    }
+
+    /**
+     * @since 1.2.0
+     */
+    public LocData(@NotNull String path, @NotNull String loc, @NotNull TimeUnit timeUnit, int depth) {
         this.path = path;
         this.loc = loc;
         this.timeUnit = timeUnit;
         this.stopwatch = new Stopwatch();
+        this.depth = depth;
     }
 
     public void push() {
@@ -97,6 +115,21 @@ public class LocData {
     @NotNull
     public TimeUnit timeUnit() {
         return timeUnit;
+    }
+
+    /**
+     * @since 1.2.0
+     */
+    public int depth() {
+        return depth;
+    }
+
+    /**
+     * @implNote This method is here for backwards compatability with {@code <=1.1.0} versions, and will be removed in v1.3.0.
+     * @since 1.2.0
+     */
+    public int depthCompat() {
+        return (depth == -1) ? (path.split("/").length - 1) : depth;
     }
 
     @ApiStatus.Internal
