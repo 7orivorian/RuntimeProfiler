@@ -42,7 +42,7 @@ data export.
 <dependency>
     <groupId>com.github.7orivorian</groupId>
     <artifactId>RuntimeProfiler</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
@@ -62,14 +62,14 @@ repositories {
 
 ```gradle
 dependencies {
-    implementation 'com.github.7orivorian:RuntimeProfiler:1.2.0'
+    implementation 'com.github.7orivorian:RuntimeProfiler:1.3.0'
 }
 ```
 
 ### Other
 
 Download a `.jar` file from
-[releases](https://github.com/7orivorian/RuntimeProfiler/releases/tag/1.2.0).
+[releases](https://github.com/7orivorian/RuntimeProfiler/releases/tag/1.3.0).
 
 # Building
 
