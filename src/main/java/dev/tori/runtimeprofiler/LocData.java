@@ -50,15 +50,6 @@ public class LocData {
     private long minTime = Long.MAX_VALUE;
     private long visits = 0L;
 
-
-    /**
-     * @deprecated for removal in v1.2.0. Use {@link LocData#LocData(String, String, TimeUnit, int)} instead.
-     */
-    @Deprecated(since = "1.2.0", forRemoval = true)
-    public LocData(@NotNull String path, @NotNull String loc, @NotNull TimeUnit timeUnit) {
-        this(path, loc, timeUnit, -1);
-    }
-
     /**
      * @since 1.2.0
      */
