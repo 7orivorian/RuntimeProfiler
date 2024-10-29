@@ -38,12 +38,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class Profiler implements IProfiler {
 
-    /**
-     * @deprecated for removal in v1.3.0. Use {@link Config#defaultMaxDepth()} instead.
-     */
-    @Deprecated(since = "1.2.0", forRemoval = true)
-    private static final int MAX_DEPTH = 100;
-
     private final String label;
     private final LinkedList<String> path;
     private final LinkedHashMap<String, LocData> map;
