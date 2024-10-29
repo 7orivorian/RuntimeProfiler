@@ -19,56 +19,45 @@
  * THE SOFTWARE.
  */
 
-package dev.tori.runtimeprofiler;
+package manual_tests;
 
-import org.jetbrains.annotations.NotNull;
+import dev.tori.runtimeprofiler.Profiler;
+import dev.tori.runtimeprofiler.write.OutputWriter;
 
-import java.util.Map;
-import java.util.Set;
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
  * @since 1.0.0
  */
-public interface IProfiler {
+@SuppressWarnings("NonFinalUtilityClass")
+public class GenerateCSVTest {
 
-    void start();
+    public static void main(String[] args) throws IOException {
+        Profiler profiler = new Profiler("MyTest", TimeUnit.MILLISECONDS);
+        profiler.start();
 
-    void stop();
+        profiler.push("Loop_A");
+        boolean b = false;
+        for (int i = 0; i < 1000; i++) {
+            profiler.push("Loop_AA");
+            for (int j = 0; j < 1000; j++) {
+                for (int k = 0; k < 1000; k++) {
+                    b = !b;
+                }
+            }
+            profiler.pop();
+        }
+        profiler.swap("Loop_B");
+        for (int i = 0; i < 1000; i++) {
+            b = !b;
+        }
+        profiler.pop();
 
-    void push(@NotNull String location);
+        profiler.stop();
 
-    void pop();
-
-    default void swap(@NotNull String location) {
-        pop();
-        push(location);
+        OutputWriter.CSV.writeToPath(profiler, new File("E:\\IntelliJ Projects\\Java\\RuntimeProfiler\\output").toPath());
     }
-
-    /**
-     * Can swap even if fully popped.
-     * @param location
-     */
-    boolean swapIf(@NotNull String location);
-
-    /**
-     * @since 1.1.0
-     */
-    String getLabel();
-
-    /**
-     * @since 1.1.0
-     */
-    TimeUnit getTimingPrecision();
-
-    /**
-     * @since 1.1.0
-     */
-    Set<Map.Entry<String, LocData>> getEntries();
-
-    /**
-     * @since 1.1.0
-     */
-    long getTotalRuntime();
 }

@@ -19,56 +19,52 @@
  * THE SOFTWARE.
  */
 
-package dev.tori.runtimeprofiler;
+package manual_tests;
 
-import org.jetbrains.annotations.NotNull;
+import dev.tori.runtimeprofiler.Profiler;
+import dev.tori.runtimeprofiler.write.ConsoleWriter;
 
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
- * @since 1.0.0
+ * @since 1.2.0
  */
-public interface IProfiler {
+@SuppressWarnings("NonFinalUtilityClass")
+public class PrintTest {
 
-    void start();
+    public static void main(String[] args) {
+        Profiler profiler = run();
 
-    void stop();
-
-    void push(@NotNull String location);
-
-    void pop();
-
-    default void swap(@NotNull String location) {
-        pop();
-        push(location);
+        ConsoleWriter.AVG_ONLY.print(profiler, System.out);
     }
 
-    /**
-     * Can swap even if fully popped.
-     * @param location
-     */
-    boolean swapIf(@NotNull String location);
+    private static Profiler run() {
+        Profiler profiler = new Profiler("TestProfiler", TimeUnit.NANOSECONDS);
+        profiler.start();
 
-    /**
-     * @since 1.1.0
-     */
-    String getLabel();
+        profiler.push("Loop_A");
+        boolean b = false;
+        for (int i = 0; i < 100; i++) {
+            profiler.push("Loop_AA");
+            for (int j = 0; j < 100; j++) {
+                profiler.push("Loop_AB");
+                for (int k = 0; k < 100; k++) {
+                    profiler.push("Loop_AC");
+                    b = !b;
+                    profiler.pop();
+                }
+                profiler.pop();
+            }
+            profiler.pop();
+        }
+        profiler.swap("Loop_B");
+        for (int i = 0; i < 1000; i++) {
+            b = !b;
+        }
+        profiler.pop();
 
-    /**
-     * @since 1.1.0
-     */
-    TimeUnit getTimingPrecision();
-
-    /**
-     * @since 1.1.0
-     */
-    Set<Map.Entry<String, LocData>> getEntries();
-
-    /**
-     * @since 1.1.0
-     */
-    long getTotalRuntime();
+        profiler.stop();
+        return profiler;
+    }
 }

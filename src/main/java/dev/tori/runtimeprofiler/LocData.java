@@ -40,16 +40,34 @@ public class LocData {
     private final @NotNull TimeUnit timeUnit;
     private final @NotNull Stopwatch stopwatch;
 
+    /**
+     * @since 1.2.0
+     */
+    private final int depth;
+
     private long total = 0L;
     private long maxTime = Long.MIN_VALUE;
     private long minTime = Long.MAX_VALUE;
     private long visits = 0L;
 
+
+    /**
+     * @deprecated for removal in v1.2.0. Use {@link LocData#LocData(String, String, TimeUnit, int)} instead.
+     */
+    @Deprecated(since = "1.2.0", forRemoval = true)
     public LocData(@NotNull String path, @NotNull String loc, @NotNull TimeUnit timeUnit) {
+        this(path, loc, timeUnit, -1);
+    }
+
+    /**
+     * @since 1.2.0
+     */
+    public LocData(@NotNull String path, @NotNull String loc, @NotNull TimeUnit timeUnit, int depth) {
         this.path = path;
         this.loc = loc;
         this.timeUnit = timeUnit;
         this.stopwatch = new Stopwatch();
+        this.depth = depth;
     }
 
     public void push() {
@@ -94,18 +112,38 @@ public class LocData {
         return visits;
     }
 
+    @NotNull
+    public TimeUnit timeUnit() {
+        return timeUnit;
+    }
+
+    /**
+     * @since 1.2.0
+     */
+    public int depth() {
+        return depth;
+    }
+
+    /**
+     * @implNote This method is here for backwards compatability with {@code <=1.1.0} versions, and will be removed in v1.3.0.
+     * @since 1.2.0
+     */
+    public int depthCompat() {
+        return (depth == -1) ? (path.split("/").length - 1) : depth;
+    }
+
     @ApiStatus.Internal
     @NotNull
-    @Contract(value = " -> new", pure = true)
-    public String[] headerArray() {
+    @Contract("_ -> new")
+    public static String @NotNull [] csvHeaders(TimeUnit timeUnit) {
         String abbr = UnitUtil.abbreviate(timeUnit);
         return new String[]{"Location", "Visits", "Total (%s)".formatted(abbr), "Avg (%s)".formatted(abbr), "Min (%s)".formatted(abbr), "Max (%s)".formatted(abbr), "Path"};
     }
 
     @ApiStatus.Internal
     @NotNull
-    public String[] dataArray(@NotNull LocData data) {
-        return new String[]{data.loc(), String.valueOf(data.visits()), String.valueOf(data.total()), String.valueOf(data.avg()), String.valueOf(data.minTime()), String.valueOf(data.maxTime()), data.path()};
+    public String[] csvRow() {
+        return new String[]{loc(), String.valueOf(visits()), String.valueOf(total()), String.valueOf(avg()), String.valueOf(minTime()), String.valueOf(maxTime()), path()};
     }
 
     @ApiStatus.Internal

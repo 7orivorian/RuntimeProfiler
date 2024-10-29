@@ -41,7 +41,9 @@ public record LocDataFactory(@NotNull TimeUnit timeUnit) {
      * @param path the path from which to create the {@link LocData}; must not be null.
      * @return a new instance of {@link LocData}.
      * @throws NullPointerException if the path is null.
+     * @deprecated for removal in v1.2.0. Use {@link #create(String, int)} instead.
      */
+    @Deprecated(since = "1.2.0", forRemoval = true)
     @NotNull
     public LocData create(@NotNull String path) {
         int i = path.lastIndexOf(Config.pathSeparator());
@@ -49,5 +51,24 @@ public record LocDataFactory(@NotNull TimeUnit timeUnit) {
         // that it's a sub-location in the event of duplicate loc names.
         String loc = (i == -1) ? path : path.substring(i);
         return new LocData(path, loc, timeUnit);
+    }
+
+    /**
+     * Creates a new instance of {@link LocData} based on the provided path. The path is processed to determine the
+     * location component.
+     *
+     * @param path  the path from which to create the {@link LocData}; must not be null.
+     * @param depth the depth of this {@link LocData}; must be greater than {@code -1}.
+     * @return a new instance of {@link LocData}.
+     * @throws NullPointerException if the path is null.
+     * @since 1.2.0
+     */
+    @NotNull
+    public LocData create(@NotNull String path, int depth) {
+        int i = path.lastIndexOf(Config.pathSeparator());
+        // loc includes any leading separator to make clear at a glance
+        // that it's a sub-location in the event of duplicate loc names.
+        String loc = (i == -1) ? path : path.substring(i);
+        return new LocData(path, loc, timeUnit, depth);
     }
 }
