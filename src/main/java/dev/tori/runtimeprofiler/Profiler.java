@@ -110,20 +110,30 @@ public class Profiler implements IProfiler {
     }
 
     /**
-     * Stop this profiler.
+     * Stops this profiler.
      *
+     * @return the root {@link LocData}.
      * @throws IllegalStateException if this profiler is not started OR not fully popped.
      */
     @Override
-    public void stop() {
+    public LocData stop() {
         checkStarted();
-        pop();
+        final LocData data = pop();
         started = false;
         if (!fullPath.isEmpty()) {
             throw new IllegalStateException("Profiler tick ended before path was fully popped (remainder %s). Mismatched push/pop?".formatted(fullPath));
         }
+        return data;
     }
 
+    /**
+     * Pushes the given location to the profiler stack.
+     *
+     * @param location the location to push to.
+     * @throws IllegalStateException    if this profiler is not {@linkplain #started}.
+     * @throws IllegalArgumentException if the given {@code location} contains the
+     *                                  {@linkplain Config#pathSeparator() path separator}.
+     */
     @Override
     public void push(@NotNull String location) {
         checkStarted();
@@ -139,13 +149,19 @@ public class Profiler implements IProfiler {
         map.computeIfAbsent(fullPath, key -> factory.create(fullPath, depth)).push();
     }
 
+    /**
+     * Pops the current location from the stack.
+     *
+     * @return the popped {@link LocData}.
+     * @throws IllegalStateException if this profiler is not {@linkplain #started} OR the stack is empty.
+     */
     @Override
-    public void pop() {
+    public LocData pop() {
         checkStarted();
         if (path.isEmpty()) {
             throw new IllegalStateException("Profiler already popped. Mismatched push/pop?");
         }
-        LocData current = getCurrentLocData();
+        final LocData current = getCurrentLocData();
         if (current == null) {
             throw new IllegalStateException("Current LocData is null. Likely due to a mismatched push/pop");
         }
@@ -154,16 +170,27 @@ public class Profiler implements IProfiler {
         path.pop();
         fullPath = path.isEmpty() ? "" : path.getFirst();
         currentLocData = null;
+        return current;
     }
 
+    /**
+     * Swaps the top of the stack or simply pushes if the current top of the stack is root.
+     * <p>
+     * More formally, this method pops the stack if {@code depth > 1}, otherwise pushes without popping.
+     *
+     * @param location the location to push to.
+     * @return the popped {@link LocData} if {@code depth > 1}, otherwise {@code null}.
+     * @throws IllegalStateException    if this profiler is not {@linkplain #started}.
+     * @throws IllegalArgumentException if the given {@code location} contains the
+     *                                  {@linkplain Config#pathSeparator() path separator}.
+     */
     @Override
-    public boolean swapIf(@NotNull String location) {
+    public LocData swapIf(@NotNull String location) {
         if (depth == 1) {
             push(location);
-            return false;
+            return null;
         }
-        swap(location);
-        return true;
+        return swap(location);
     }
 
     /**
@@ -187,6 +214,10 @@ public class Profiler implements IProfiler {
         return Collections.unmodifiableSet(map.entrySet());
     }
 
+    /**
+     * @return the total runtime of the root {@link LocData}.
+     * @throws IllegalStateException if the profiler is {@link #started}.
+     */
     @Override
     public long getTotalRuntime() {
         if (started) {
@@ -222,8 +253,9 @@ public class Profiler implements IProfiler {
      */
     @ApiStatus.Internal
     private void checkLocationName(@NotNull String location) {
-        if (location.contains(Config.pathSeparator())) {
-            throw new IllegalArgumentException("Invalid path: " + location + ". Cannot contain path separator!");
+        final String pathSeparator = Config.pathSeparator();
+        if (location.contains(pathSeparator)) {
+            throw new IllegalArgumentException("Invalid path: " + location + ". Cannot contain path separator '" + pathSeparator.translateEscapes() + "'!");
         }
     }
 

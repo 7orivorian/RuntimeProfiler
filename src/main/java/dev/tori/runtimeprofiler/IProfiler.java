@@ -21,6 +21,7 @@
 
 package dev.tori.runtimeprofiler;
 
+import dev.tori.runtimeprofiler.config.Config;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -33,24 +34,64 @@ import java.util.concurrent.TimeUnit;
  */
 public interface IProfiler {
 
+    /**
+     * Resets and starts this profiler.
+     *
+     * @throws IllegalStateException if this profiler is already started.
+     */
     void start();
 
-    void stop();
+    /**
+     * Stops this profiler.
+     *
+     * @return the root {@link LocData}.
+     * @throws IllegalStateException if this profiler is not started OR not fully popped.
+     */
+    LocData stop();
 
+    /**
+     * Pushes the given location to the stack.
+     *
+     * @param location the location to push to.
+     * @throws IllegalStateException    if this profiler is not started.
+     * @throws IllegalArgumentException if the given {@code location} contains the
+     *                                  {@linkplain Config#pathSeparator() path separator}.
+     */
     void push(@NotNull String location);
 
-    void pop();
+    /**
+     * Pops the current location from the stack.
+     *
+     * @return the popped {@link LocData}.
+     * @throws IllegalStateException if this profiler is not started OR the stack is empty.
+     */
+    LocData pop();
 
-    default void swap(@NotNull String location) {
-        pop();
+    /**
+     * @param location the location to push to.
+     * @return the popped {@link LocData}.
+     * @throws IllegalStateException    if this profiler is not started.
+     * @throws IllegalArgumentException if the given {@code location} contains the
+     *                                  {@linkplain Config#pathSeparator() path separator}.
+     */
+    default LocData swap(@NotNull String location) {
+        final LocData data = pop();
         push(location);
+        return data;
     }
 
     /**
-     * Can swap even if fully popped.
-     * @param location
+     * Swaps the top of the stack or simply pushes if the current top of the stack is root.
+     * <p>
+     * More formally, this method pops the stack if {@code depth > 1}, otherwise pushes without popping.
+     *
+     * @param location the location to push to.
+     * @return the popped {@link LocData} if {@code depth > 1}, otherwise {@code null}.
+     * @throws IllegalStateException    if this profiler is not started.
+     * @throws IllegalArgumentException if the given {@code location} contains the
+     *                                  {@linkplain Config#pathSeparator() path separator}.
      */
-    boolean swapIf(@NotNull String location);
+    LocData swapIf(@NotNull String location);
 
     /**
      * @since 1.1.0
