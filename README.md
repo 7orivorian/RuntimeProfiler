@@ -1,11 +1,10 @@
 # RuntimeProfiler
 
-![GitHub all releases](https://img.shields.io/github/downloads/7orivorian/RuntimeProfiler/total?style=flat-square)
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/7orivorian/RuntimeProfiler?style=flat-square)
-[![](https://jitci.com/gh/7orivorian/RuntimeProfiler/svg)](https://jitci.com/gh/7orivorian/RuntimeProfiler)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/7orivorian/RuntimeProfiler/total?style=for-the-badge&link=https%3A%2F%2Fgithub.com%2F7orivorian%2FRuntimeProfiler%2Freleases%2Flatest)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/7orivorian/RuntimeProfiler?style=for-the-badge)
+![Maven Central Version](https://img.shields.io/maven-central/v/dev.7ori/runtimeprofiler?style=for-the-badge&link=https%3A%2F%2Fcentral.sonatype.com&link=https%3A%2F%2Fcentral.sonatype.com%2Fartifact%2Fdev.7ori%2Fruntimeprofiler)
 
-RuntimeProfiler enables performance monitoring for Java applications 
-through execution time tracking and data export.
+Performance monitoring for Java applications through execution time tracking and data export.
 
 # Features
 
@@ -22,46 +21,19 @@ through execution time tracking and data export.
 
 ### Maven
 
-* Include JitPack in your maven build file (usually `pom.xml`)
-
 ```xml
-
-<repositories>
-    <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
-    </repository>
-</repositories>
-```
-
-* Add the dependency
-
-```xml
-
 <dependency>
-    <groupId>com.github.7orivorian</groupId>
-    <artifactId>RuntimeProfiler</artifactId>
+    <groupId>dev.7ori</groupId>
+    <artifactId>runtimeprofiler</artifactId>
     <version>2.0.0</version>
 </dependency>
 ```
 
 ### Gradle
 
-* Add JitPack to your root `build.gradle` at the end of repositories
-
-```gradle
-repositories {
-    maven {
-        url 'https://jitpack.io'
-    }
-}
-```
-
-* Add the dependency
-
 ```gradle
 dependencies {
-    implementation 'com.github.7orivorian:RuntimeProfiler:2.0.0'
+    implementation 'dev.7ori:runtimeprofiler:2.0.0'
 }
 ```
 
