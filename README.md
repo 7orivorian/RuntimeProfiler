@@ -1,12 +1,14 @@
 # RuntimeProfiler
 
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/7orivorian/RuntimeProfiler/total?style=for-the-badge&link=https%3A%2F%2Fgithub.com%2F7orivorian%2FRuntimeProfiler%2Freleases%2Flatest)
+
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/7orivorian/RuntimeProfiler?style=for-the-badge)
-![Maven Central Version](https://img.shields.io/maven-central/v/dev.7ori/runtimeprofiler?style=for-the-badge&link=https%3A%2F%2Fcentral.sonatype.com&link=https%3A%2F%2Fcentral.sonatype.com%2Fartifact%2Fdev.7ori%2Fruntimeprofiler)
+![Maven Central Version](https://img.shields.io/maven-central/v/dev.7ori/runtimeprofiler?style=for-the-badge)
+![GitHub License](https://img.shields.io/github/license/7orivorian/Wraith?style=for-the-badge)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/7orivorian/RuntimeProfiler/total?style=for-the-badge)
 
 Performance monitoring for Java applications through execution time tracking and data export.
 
-# Features
+## Features
 
 - **Easy integration & usage.**
     - Seamlessly add profiling capabilities to your Java projects with only a
@@ -17,7 +19,7 @@ Performance monitoring for Java applications through execution time tracking and
     - Output profiling data for in-depth analysis, reporting, &
       graphing.
 
-# Importing
+## Importing
 
 ### Maven
 
@@ -42,14 +44,14 @@ dependencies {
 Download a `.jar` file from
 [releases](https://github.com/7orivorian/RuntimeProfiler/releases/tag/2.0.0).
 
-# Building
+## Building
 
 * Clone this repository
-* Run `mvn package`
+* Run `mvn clean package`
 
 Packaged jar file can be found in the `./target/` directory.
 
-# Usage Example
+## Usage Example
 
 ```java
 public class Main {
@@ -77,7 +79,7 @@ public class Main {
 }
 ```
 
-# License
+## License
 
 [This project is licensed under MIT.](./LICENSE)
 
