@@ -26,6 +26,7 @@ import dev.tori.runtimeprofiler.write.OutputWriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -58,6 +59,8 @@ public class GenerateCSVTest {
 
         profiler.stop();
 
-        OutputWriter.CSV.writeToPath(profiler, new File("E:\\IntelliJ Projects\\Java\\RuntimeProfiler\\output").toPath());
+        Path path = new File(System.getProperty("user.dir") + "\\output").toPath();
+        OutputWriter.prepareDir(path);
+        OutputWriter.CSV.writeToPath(profiler, path);
     }
 }

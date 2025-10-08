@@ -26,6 +26,7 @@ import dev.tori.runtimeprofiler.write.OutputWriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,7 +39,9 @@ public class GenerateHTMLTest {
     public static void main(String[] args) throws IOException {
         Profiler profiler = run();
 
-        OutputWriter.HTML.writeToPath(profiler, new File("E:\\IntelliJ Projects\\Java\\RuntimeProfiler\\output").toPath());
+        Path path = new File(System.getProperty("user.dir") + "\\output").toPath();
+        OutputWriter.prepareDir(path);
+        OutputWriter.HTML.writeToPath(profiler, path);
     }
 
     private static Profiler run() {
