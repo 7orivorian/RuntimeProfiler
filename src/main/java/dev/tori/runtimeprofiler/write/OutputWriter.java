@@ -44,6 +44,20 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * The OutputWriter enum provides different implementations for writing profiler data
+ * to various file formats such as CSV, HTML, and Markdown. Each implementation specifies
+ * the corresponding file format and manages the structure and writing of data entries.
+ * <p>
+ * Example Usage:
+ * <pre>{@code
+ * // Path to write the output to.
+ * Path path = new File(System.getProperty("user.dir") + "\\output").toPath();
+ * // Ensure the output directory exists and is a valid directory.
+ * OutputWriter.prepareDir(path);
+ * // Write the profiler data to the specified path.
+ * OutputWriter.HTML.writeToPath(profiler, path);
+ * }</pre>
+ *
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
  * @since 1.1.0
  */
