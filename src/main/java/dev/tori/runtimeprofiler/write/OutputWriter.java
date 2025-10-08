@@ -174,11 +174,15 @@ public enum OutputWriter {
     /**
      * Parses the given string to return the corresponding {@code OutputWriter} instance.
      *
-     * @param name the name of the output writer; must not be {@code null}.
+     * @param name the name of the {@code OutputWriter}; must not be {@code null}.
      * @return the {@code OutputWriter} instance matching the given name.
-     * @throws IllegalArgumentException if the given name does not match any valid {@code OutputWriter}.
+     * @throws IllegalArgumentException if the given name is {@code null} or does not match any valid {@code OutputWriter}.
      */
-    public static OutputWriter fromString(@NotNull String name) {
+    @NotNull
+    public static OutputWriter fromString(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("OutputWriter name cannot be null");
+        }
         return switch (name.toLowerCase(Locale.ROOT)) {
             case "csv" -> CSV;
             case "html" -> HTML;
