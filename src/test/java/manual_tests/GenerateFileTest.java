@@ -21,43 +21,26 @@
 
 package manual_tests;
 
-import dev.tori.runtimeprofiler.Profiler;
 import dev.tori.runtimeprofiler.write.OutputWriter;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+
+import static manual_tests.TestUtils.mockProfilerData;
+import static manual_tests.TestUtils.write;
 
 /**
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
- * @since 1.0.0
+ * @since 1.1.0
  */
 @SuppressWarnings("NonFinalUtilityClass")
-public class GenerateCSVTest {
+public class GenerateFileTest {
 
     public static void main(String[] args) throws IOException {
-        Profiler profiler = new Profiler("MyTest", TimeUnit.MILLISECONDS);
-        profiler.start();
-
-        profiler.push("Loop_A");
-        boolean b = false;
-        for (int i = 0; i < 1000; i++) {
-            profiler.push("Loop_AA");
-            for (int j = 0; j < 1000; j++) {
-                for (int k = 0; k < 1000; k++) {
-                    b = !b;
-                }
-            }
-            profiler.pop();
+        String property = System.getProperty("rtp.outputwriter");
+        if (property == null) {
+            property = "html";
         }
-        profiler.swap("Loop_B");
-        for (int i = 0; i < 1000; i++) {
-            b = !b;
-        }
-        profiler.pop();
 
-        profiler.stop();
-
-        OutputWriter.CSV.writeToPath(profiler, new File("E:\\IntelliJ Projects\\Java\\RuntimeProfiler\\output").toPath());
+        write(mockProfilerData(), OutputWriter.fromString(property));
     }
 }

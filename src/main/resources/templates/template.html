@@ -26,67 +26,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>$title</title>
     <style>
-        body {
-            background-color: #2c3539;
-            color: #bcbec4;
+        :root {
+            --background-color: hsl(222, 22%, 4%);
+            --foreground-color: hsl(222, 22%, 14%);
+            --foreground-color-light: hsl(222, 22%, 16%);
+            --foreground-color-lighter: hsl(222, 22%, 18%);
+            --primary-color: hsl(243, 50%, 47%);
+            --secondary-color: hsl(239, 48%, 68%);
+            --text-color: hsl(223, 80%, 90%);
         }
 
-        #table {
-            margin-top: 30px;
+        * {
+            box-sizing: border-box !important;
+
+            margin: 0;
+            padding: 0;
+
+            font-family: sans-serif;
+        }
+
+        body {
+            position: relative;
+            display: flex;
+            flex-flow: column wrap;
+
+            padding: 20px;
+            width: 100%;
+            height: 100%;
+            min-height: 100vh;
+
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            display: flex;
+            flex-flow: column wrap;
+            align-items: flex-start;
+            justify-content: flex-start;
+            gap: 20px;
+
+            padding: 10px;
+
+            width: fit-content;
+            min-width: 100%;
+            height: 100%;
+
+            background: var(--foreground-color);
+            border-radius: 10px;
         }
 
         table {
             border-collapse: collapse;
-            border: 2px solid #bcbec4;
-            font-family: sans-serif;
-            font-size: 0.8rem;
-            letter-spacing: 1px;
+            border: 2px solid var(--primary-color);
         }
 
         caption {
             caption-side: top;
             padding: 10px;
-            font-weight: bold;
         }
 
         thead,
         tfoot {
-            background-color: #274a5e;
+            background-color: var(--primary-color);
         }
 
         th,
         td {
-            border: 1px solid #bcbec4;
-            padding: 8px 10px;
-        }
-
-        td:last-of-type {
-            text-align: center;
+            border: 2px solid var(--background-color);
+            padding: 10px;
         }
 
         tbody > tr:nth-of-type(odd) {
-            background-color: #23344b;
+            background-color: var(--foreground-color-light);
         }
 
         tbody > tr:nth-of-type(even) {
-            background-color: #263f58;
+            background-color: var(--foreground-color-lighter);
         }
 
-        tfoot th {
-            text-align: right;
-        }
-
-        tfoot td {
-            font-weight: bold;
-        }
-
-        footer {
-            margin-top: 50px;
-            font-size: 0.8rem;
-        }
-
-        a {
-            color: #4c86a9;
+        a,
+        span {
+            color: var(--secondary-color);
         }
 
         .copyable {
@@ -96,43 +117,56 @@
         #options {
 
         }
+
+        footer {
+            position: relative;
+            display: flex;
+            flex-flow: row wrap;
+            justify-self: flex-end;
+            gap: 0.25rem;
+
+            margin-top: auto;
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body>
-<header>
-    <h1>Profiler — <a class="copyable">$label</a></h1>
-    <h3 id="dateheader">Generated on <a class="copyable">$date</a></h3>
-</header>
-<div id="options">
-    <label for="simple-dropdown">TimeUnit Override</label>
-    <select id="simple-dropdown">
-        <option value="none" selected>none</option>
-        <option value="ns">ns (nanoseconds)</option>
-        <option value="us">us (microseconds)</option>
-        <option value="ms">ms (milliseconds)</option>
-        <option value="s">s (seconds)</option>
-        <option value="m">m (minutes)</option>
-        <option value="h">h (hours)</option>
-        <option value="d">d (days)</option>
-    </select>
-</div>
-<div id="table">
-    <table>
-        <!--@formatter:off-->
+<div class="container">
+    <header>
+        <h1>Profiler — <span class="copyable" title="Copy to clipboard">$label</span></h1>
+        <h3 id="dateheader">Generated on <span class="copyable" title="Copy to clipboard">$date</span></h3>
+    </header>
+    <div id="options">
+        <label for="simple-dropdown">TimeUnit Override</label>
+        <select id="simple-dropdown">
+            <option value="none" selected>none</option>
+            <option value="ns">ns (nanoseconds)</option>
+            <option value="us">us (microseconds)</option>
+            <option value="ms">ms (milliseconds)</option>
+            <option value="s">s (seconds)</option>
+            <option value="m">m (minutes)</option>
+            <option value="h">h (hours)</option>
+            <option value="d">d (days)</option>
+        </select>
+    </div>
+    <div id="table">
+        <table>
+            <!--@formatter:off-->
         <caption>
-            Timed with <a id="timeunit">$timeunit (<originalunit>$abbrtimeunit</originalunit>)</a> precision
+            Timed with <span id="timeunit" title="Overriding with a smaller TimeUnit than this may lead to inaccuracies">$timeunit (<originalunit>$abbrtimeunit</originalunit>)</span> precision
         </caption>
         <!--@formatter:on-->
-        <thead>
-        $tableheader
-        </thead>
-        <tbody>
-        $tablebody
-        </tbody>
-    </table>
+            <thead>
+            $tableheader
+            </thead>
+            <tbody>
+            $tablebody
+            </tbody>
+        </table>
+    </div>
 </div>
 <footer>
-    Generated by <a href="https://github.com/7orivorian/RuntimeProfiler">RuntimeProfiler</a>
+    Generated with <a href="https://github.com/7orivorian/RuntimeProfiler" target="_blank" title="Open in new Tab">RuntimeProfiler</a>
 </footer>
 </body>
 <script>
