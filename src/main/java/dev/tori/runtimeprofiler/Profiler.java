@@ -247,6 +247,16 @@ public class Profiler implements IProfiler {
     }
 
     /**
+     * Checks whether the profiler has been started.
+     *
+     * @return {@code true} if the profiler is started, {@code false} otherwise.
+     * @since 2.1.0
+     */
+    public boolean isStarted() {
+        return started;
+    }
+
+    /**
      * @param location the location to check
      * @throws IllegalArgumentException if the given {@code location} contains the
      *                                  {@linkplain Config#pathSeparator() path separator}.
