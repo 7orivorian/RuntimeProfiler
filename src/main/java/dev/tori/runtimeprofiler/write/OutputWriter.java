@@ -173,6 +173,22 @@ public enum OutputWriter {
     }
 
     /**
+     * Parses the given string to return the corresponding {@code OutputWriter} instance.
+     *
+     * @param name the name of the output writer; must not be {@code null}.
+     * @return the {@code OutputWriter} instance matching the given name.
+     * @throws IllegalArgumentException if the given name does not match any valid {@code OutputWriter}.
+     */
+    public static OutputWriter fromString(@NotNull String name) {
+        return switch (name.toLowerCase(Locale.ROOT)) {
+            case "csv" -> CSV;
+            case "html" -> HTML;
+            case "markdown", "md" -> MARKDOWN;
+            default -> throw new IllegalArgumentException("Invalid OutputWriter name: " + name);
+        };
+    }
+
+    /**
      * Prepares the specified directory by ensuring it exists and is a valid directory.
      * If the directory does not exist, it will attempt to create it.
      * If the directory does not exist after the creation attempt or is not a valid directory,
