@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="GenerateHTMLTest" type="Application" factoryName="Application">
+  <configuration default="false" name="GenerateFileTest - Markdown" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="manual_tests.GenerateFileTest" />
     <module name="runtimeprofiler" />
-    <option name="VM_PARAMETERS" value="-Drtp.outputwriter=html" />
+    <option name="VM_PARAMETERS" value="-Drtp.outputwriter=markdown" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="manual_tests.*" />
