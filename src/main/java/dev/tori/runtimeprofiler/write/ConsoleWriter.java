@@ -29,6 +29,10 @@ import java.io.PrintStream;
 import java.text.DecimalFormat;
 
 /**
+ * The OutputWriter enum provides different implementations for printing profiling data to the console.
+ * Each enum instance provides a specific implementation for formatting and outputting
+ * the data collected by a profiler instance.
+ *
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
  * @since 1.2.0
  */
