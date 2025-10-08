@@ -158,6 +158,15 @@ public enum OutputWriter {
 
     }
 
+    /**
+     * Prepares the specified directory by ensuring it exists and is a valid directory.
+     * If the directory does not exist, it will attempt to create it.
+     * If the directory does not exist after the creation attempt or is not a valid directory,
+     * a {@link FileNotFoundException} will be thrown.
+     *
+     * @param path the path of the directory to prepare; must not be {@code null}.
+     * @throws IOException if an I/O error occurs or if the directory validation fails.
+     */
     public static void prepareDir(@NotNull Path path) throws IOException {
         if (!Files.exists(path)) {
             Files.createDirectory(path);
@@ -194,6 +203,13 @@ public enum OutputWriter {
 
     public abstract String fileExtension();
 
+    /**
+     * Checks whether the specified path exists in the file system.
+     * If the path does not exist, a {@link FileNotFoundException} is thrown.
+     *
+     * @param path the {@link Path} object representing the file or directory to check; must not be {@code null}.
+     * @throws FileNotFoundException if the specified path does not exist.
+     */
     public void checkPathExists(@NotNull Path path) throws FileNotFoundException {
         if (!Files.exists(path)) {
             throw new FileNotFoundException(path.toString());
