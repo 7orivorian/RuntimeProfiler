@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 7orivorian.
+ * Copyright (c) 2025 7orivorian.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +21,7 @@
 
 package manual_tests;
 
+import dev.tori.runtimeprofiler.IProfiler;
 import dev.tori.runtimeprofiler.Profiler;
 import dev.tori.runtimeprofiler.write.OutputWriter;
 
@@ -31,20 +32,17 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
- * @since 1.1.0
+ * @since 2.1.0
  */
-@SuppressWarnings("NonFinalUtilityClass")
-public class GenerateMDTest {
+class TestUtils {
 
-    public static void main(String[] args) throws IOException {
-        Profiler profiler = run();
-
+    static void write(IProfiler profiler, OutputWriter outputWriter) throws IOException {
         Path path = new File(System.getProperty("user.dir") + "\\output").toPath();
         OutputWriter.prepareDir(path);
-        OutputWriter.MARKDOWN.writeToPath(profiler, path);
+        outputWriter.writeToPath(profiler, path);
     }
 
-    private static Profiler run() {
+    static IProfiler mockProfilerData() {
         Profiler profiler = new Profiler("TestProfiler", TimeUnit.NANOSECONDS);
         profiler.start();
 
@@ -55,7 +53,12 @@ public class GenerateMDTest {
             for (int j = 0; j < 100; j++) {
                 profiler.push("Loop_AB");
                 for (int k = 0; k < 100; k++) {
-                    profiler.push("Loop_AC");
+                    profiler.push("Flip_A");
+                    b = !b;
+                    profiler.pop();
+                }
+                for (int k = 0; k < 100; k++) {
+                    profiler.push("Flip_B");
                     b = !b;
                     profiler.pop();
                 }

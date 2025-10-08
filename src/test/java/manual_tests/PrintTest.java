@@ -21,10 +21,9 @@
 
 package manual_tests;
 
-import dev.tori.runtimeprofiler.Profiler;
 import dev.tori.runtimeprofiler.write.ConsoleWriter;
 
-import java.util.concurrent.TimeUnit;
+import static manual_tests.TestUtils.mockProfilerData;
 
 /**
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
@@ -34,37 +33,6 @@ import java.util.concurrent.TimeUnit;
 public class PrintTest {
 
     public static void main(String[] args) {
-        Profiler profiler = run();
-
-        ConsoleWriter.AVG_ONLY.print(profiler, System.out);
-    }
-
-    private static Profiler run() {
-        Profiler profiler = new Profiler("TestProfiler", TimeUnit.NANOSECONDS);
-        profiler.start();
-
-        profiler.push("Loop_A");
-        boolean b = false;
-        for (int i = 0; i < 100; i++) {
-            profiler.push("Loop_AA");
-            for (int j = 0; j < 100; j++) {
-                profiler.push("Loop_AB");
-                for (int k = 0; k < 100; k++) {
-                    profiler.push("Loop_AC");
-                    b = !b;
-                    profiler.pop();
-                }
-                profiler.pop();
-            }
-            profiler.pop();
-        }
-        profiler.swap("Loop_B");
-        for (int i = 0; i < 1000; i++) {
-            b = !b;
-        }
-        profiler.pop();
-
-        profiler.stop();
-        return profiler;
+        ConsoleWriter.AVG_ONLY.print(mockProfilerData(), System.out);
     }
 }

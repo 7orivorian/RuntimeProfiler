@@ -21,55 +21,26 @@
 
 package manual_tests;
 
-import dev.tori.runtimeprofiler.Profiler;
 import dev.tori.runtimeprofiler.write.OutputWriter;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.concurrent.TimeUnit;
+
+import static manual_tests.TestUtils.mockProfilerData;
+import static manual_tests.TestUtils.write;
 
 /**
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
  * @since 1.1.0
  */
 @SuppressWarnings("NonFinalUtilityClass")
-public class GenerateHTMLTest {
+public class GenerateFileTest {
 
     public static void main(String[] args) throws IOException {
-        Profiler profiler = run();
-
-        Path path = new File(System.getProperty("user.dir") + "\\output").toPath();
-        OutputWriter.prepareDir(path);
-        OutputWriter.HTML.writeToPath(profiler, path);
-    }
-
-    private static Profiler run() {
-        Profiler profiler = new Profiler("TestProfiler", TimeUnit.NANOSECONDS);
-        profiler.start();
-
-        profiler.push("Loop_A");
-        boolean b = false;
-        for (int i = 0; i < 100; i++) {
-            profiler.push("Loop_AA");
-            for (int j = 0; j < 100; j++) {
-                profiler.push("Loop_AB");
-                for (int k = 0; k < 100; k++) {
-                    profiler.push("Loop_AC");
-                    b = !b;
-                    profiler.pop();
-                }
-                profiler.pop();
-            }
-            profiler.pop();
+        String property = System.getProperty("rtp.outputwriter");
+        if (property == null) {
+            property = "html";
         }
-        profiler.swap("Loop_B");
-        for (int i = 0; i < 1000; i++) {
-            b = !b;
-        }
-        profiler.pop();
 
-        profiler.stop();
-        return profiler;
+        write(mockProfilerData(), OutputWriter.fromString(property));
     }
 }
