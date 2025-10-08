@@ -33,6 +33,11 @@ import static manual_tests.TestUtils.mockProfilerData;
 public class PrintTest {
 
     public static void main(String[] args) {
-        ConsoleWriter.AVG_ONLY.print(mockProfilerData(), System.out);
+        String property = System.getProperty("rtp.consolewriter");
+        if (property == null) {
+            property = "full";
+        }
+
+        ConsoleWriter.fromString(property).print(mockProfilerData(), System.out);
     }
 }
