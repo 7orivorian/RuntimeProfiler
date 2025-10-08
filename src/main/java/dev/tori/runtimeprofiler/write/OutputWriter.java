@@ -79,7 +79,7 @@ public enum OutputWriter {
             String date = generateDateSuffix();
 
             String label = profiler.getLabel();
-            String title = label + date;
+            String title = label + " " + date;
 
             template = template.replace("$tableheader", LocData.headerHTML());
 
@@ -120,7 +120,7 @@ public enum OutputWriter {
             String date = generateDateSuffix();
 
             String label = profiler.getLabel();
-            String title = label + date;
+            String title = label + " " + date;
 
             template = template.replace("$tableheader", LocData.headerMD());
 
