@@ -22,6 +22,7 @@
 package dev.tori.runtimeprofiler.config;
 
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
@@ -35,8 +36,8 @@ public final class Config {
      * @since 1.2.0
      */
     private static int defaultMaxDepth = 100;
-    private static String pathSeparator = "/";
-    private static TimeUnit defaultTimeUnit = TimeUnit.NANOSECONDS;
+    private static @NotNull String pathSeparator = "/";
+    private static @NotNull TimeUnit defaultTimeUnit = TimeUnit.NANOSECONDS;
 
     @Contract(pure = true)
     private Config() {
@@ -63,7 +64,7 @@ public final class Config {
         return pathSeparator;
     }
 
-    public static void setPathSeparator(String pathSeparator) {
+    public static void setPathSeparator(@NotNull String pathSeparator) {
         Config.pathSeparator = pathSeparator;
     }
 
@@ -72,7 +73,7 @@ public final class Config {
         return defaultTimeUnit;
     }
 
-    public static void setDefaultTimeUnit(TimeUnit defaultTimeUnit) {
+    public static void setDefaultTimeUnit(@NotNull TimeUnit defaultTimeUnit) {
         Config.defaultTimeUnit = defaultTimeUnit;
     }
 }
