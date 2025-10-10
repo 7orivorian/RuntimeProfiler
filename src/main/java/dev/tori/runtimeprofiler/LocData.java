@@ -150,14 +150,14 @@ public class LocData {
     @ApiStatus.Internal
     @NotNull
     public String dataHTML(String percent) {
-        String unit = UnitUtil.abbreviate(timeUnit);
+        String unit = UnitUtil.abbreviate(timeUnit());
         return "<tr>" +
                 "<th>%s</th>".formatted(loc()) +
                 "<td>%s</td>".formatted(visits()) +
                 "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, avg(), avg()) +
-                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, minTime, minTime) +
-                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, maxTime, maxTime) +
-                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, total, total) +
+                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, minTime(), minTime()) +
+                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, maxTime(), maxTime()) +
+                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, total(), total()) +
                 "<td>%s</td>".formatted(percent + "%") +
                 "<td>%s</td>".formatted(path()) +
                 "</tr>";
@@ -185,9 +185,9 @@ public class LocData {
                 "<th>%s</th>".formatted(loc()) +
                 "<td>%s</td>".formatted(visits()) +
                 "<td>%s</td>".formatted(avg()) +
-                "<td>%s</td>".formatted(minTime) +
-                "<td>%s</td>".formatted(maxTime) +
-                "<td>%s</td>".formatted(total) +
+                "<td>%s</td>".formatted(minTime()) +
+                "<td>%s</td>".formatted(maxTime()) +
+                "<td>%s</td>".formatted(total()) +
                 "<td>%s</td>".formatted(percent + "%") +
                 "<td>%s</td>".formatted(path()) +
                 "</tr>";
