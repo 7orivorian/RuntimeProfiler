@@ -23,6 +23,7 @@ package dev.tori.runtimeprofiler;
 
 import dev.tori.runtimeprofiler.config.Config;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
@@ -91,6 +92,7 @@ public interface IProfiler {
      * @throws IllegalArgumentException if the given {@code location} contains the
      *                                  {@linkplain Config#pathSeparator() path separator}.
      */
+    @Nullable
     LocData swapIf(@NotNull String location);
 
     /**
