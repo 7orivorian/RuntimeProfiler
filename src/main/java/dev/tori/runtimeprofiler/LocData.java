@@ -115,14 +115,6 @@ public class LocData {
         return depth;
     }
 
-    /**
-     * @implNote This method is here for backwards compatability with {@code <=1.1.0} versions, and will be removed in v1.3.0.
-     * @since 1.2.0
-     */
-    public int depthCompat() {
-        return (depth == -1) ? (path.split("/").length - 1) : depth;
-    }
-
     @ApiStatus.Internal
     @NotNull
     @Contract("_ -> new")
