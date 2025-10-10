@@ -59,6 +59,11 @@ public final class Config {
         Config.defaultMaxDepth = defaultMaxDepth;
     }
 
+    /**
+     * Returns the configured path separator.
+     *
+     * @return the default path separator as a string.
+     */
     @Contract(pure = true)
     public static String pathSeparator() {
         return pathSeparator;
@@ -68,6 +73,11 @@ public final class Config {
         Config.pathSeparator = pathSeparator;
     }
 
+    /**
+     * Returns the configured time unit used for timing location visits.
+     *
+     * @return the default time unit used for timing location visits.
+     */
     @Contract(pure = true)
     public static TimeUnit defaultTimeUnit() {
         return defaultTimeUnit;
