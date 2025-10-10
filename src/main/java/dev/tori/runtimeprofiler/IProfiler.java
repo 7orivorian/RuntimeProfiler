@@ -35,14 +35,14 @@ import java.util.concurrent.TimeUnit;
 public interface IProfiler {
 
     /**
-     * Resets and starts this profiler.
+     * Resets and starts this profiler, unless it is already started, in which case it throws an {@link IllegalStateException}.
      *
      * @throws IllegalStateException if this profiler is already started.
      */
     void start();
 
     /**
-     * Stops this profiler.
+     * Stops this profiler if it is started and fully popped, otherwise throws an {@link IllegalStateException}.
      *
      * @return the root {@link LocData}.
      * @throws IllegalStateException if this profiler is not started OR not fully popped.
@@ -94,6 +94,9 @@ public interface IProfiler {
     LocData swapIf(@NotNull String location);
 
     /**
+     * Retrieves the profiler's label.
+     *
+     * @return the profiler's label.
      * @since 1.1.0
      */
     String getLabel();
