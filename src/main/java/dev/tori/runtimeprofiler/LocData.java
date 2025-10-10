@@ -57,8 +57,8 @@ public class LocData {
         this.path = path;
         this.loc = loc;
         this.timeUnit = timeUnit;
-        this.stopwatch = new Stopwatch();
         this.depth = depth;
+        this.stopwatch = new Stopwatch();
     }
 
     public void push() {
