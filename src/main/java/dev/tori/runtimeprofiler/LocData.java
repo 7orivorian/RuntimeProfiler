@@ -88,6 +88,9 @@ public class LocData {
     }
 
     public long avg() {
+        if (visits == 0) {
+            return 0L;
+        }
         return total / visits;
     }
 
