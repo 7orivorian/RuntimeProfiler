@@ -230,6 +230,17 @@ public class Profiler implements IProfiler {
         return fullPath;
     }
 
+    /**
+     * Checks if the profiler is currently started.
+     *
+     * @return {@code true} if the profiler is started, {@code false} otherwise.
+     * @since 2.1.0
+     */
+    @Override
+    public boolean isStarted() {
+        return started;
+    }
+
     @Nullable
     public LocData getCurrentLocData() {
         if (currentLocData == null) {
@@ -244,16 +255,6 @@ public class Profiler implements IProfiler {
      */
     public int getCurrentDepth() {
         return depth;
-    }
-
-    /**
-     * Checks whether the profiler has been started.
-     *
-     * @return {@code true} if the profiler is started, {@code false} otherwise.
-     * @since 2.1.0
-     */
-    public boolean isStarted() {
-        return started;
     }
 
     /**

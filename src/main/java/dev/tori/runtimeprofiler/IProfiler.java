@@ -117,4 +117,12 @@ public interface IProfiler {
      * @since 1.1.0
      */
     long getTotalRuntime();
+
+    /**
+     * Checks if the profiler is currently started.
+     *
+     * @return {@code true} if the profiler is started, {@code false} otherwise.
+     * @since 3.0.0
+     */
+    boolean isStarted();
 }
