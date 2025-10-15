@@ -38,6 +38,10 @@ public final class Config {
     private static int defaultMaxDepth = 100;
     private static @NotNull String pathSeparator = "/";
     private static @NotNull TimeUnit defaultTimeUnit = TimeUnit.NANOSECONDS;
+    /**
+     * @since 3.0.0
+     */
+    private static boolean defaultAutoStart = false;
 
     @Contract(pure = true)
     private Config() {
@@ -85,5 +89,20 @@ public final class Config {
 
     public static void setDefaultTimeUnit(@NotNull TimeUnit defaultTimeUnit) {
         Config.defaultTimeUnit = defaultTimeUnit;
+    }
+
+    /**
+     * @since 3.0.0
+     */
+    @Contract(pure = true)
+    public static boolean defaultAutoStart() {
+        return defaultAutoStart;
+    }
+
+    /**
+     * @since 3.0.0
+     */
+    public static void setDefaultAutoStart(boolean defaultAutoStart) {
+        Config.defaultAutoStart = defaultAutoStart;
     }
 }

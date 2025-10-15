@@ -43,6 +43,10 @@ public class Profiler implements IProfiler {
     private final LinkedHashMap<String, LocData> map;
     private final LocDataFactory factory;
     private final int maxDepth;
+    /**
+     * @since 3.0.0
+     */
+    private final boolean autoStart;
 
     private boolean started;
     private int depth;
@@ -50,34 +54,73 @@ public class Profiler implements IProfiler {
     private LocData currentLocData;
 
     /**
-     * Constructs a new profiler with the given {@code label} and the
-     * {@linkplain Config#defaultTimeUnit() default time unit}.
+     * Constructs a new profiler with the given {@code label}.
+     * <p>
+     * {@code precision}, {@code maxDepth}, and {@code autoStart} are set to the configured default values.
      *
-     * @param label The label for this profiler
+     * @param label A string identifier for this profiler. Must not be {@code null}.
+     * @throws IllegalArgumentException if {@code maxDepth} is less than or equal to zero.
+     * @throws NullPointerException     if {@code label} is {@code null}.
      */
     public Profiler(String label) {
-        this(label, Config.defaultTimeUnit());
+        this(label, Config.defaultTimeUnit(), Config.defaultMaxDepth());
+    }
+
+    /**
+     * Constructs a new profiler with the given {@code label} and {@code autoStart}.
+     * <p>
+     * {@code precision} and {@code maxDepth} are set to the configured default values.
+     *
+     * @param label     A string identifier for this profiler. Must not be {@code null}.
+     * @param autoStart Indicates whether the profiler should automatically start when pushed to.
+     * @throws IllegalArgumentException if {@code maxDepth} is less than or equal to zero.
+     * @throws NullPointerException     if {@code label} is {@code null}.
+     */
+    public Profiler(@NotNull String label, boolean autoStart) {
+        this(label, Config.defaultTimeUnit(), Config.defaultMaxDepth(), autoStart);
     }
 
     /**
      * Constructs a new profiler with the given {@code label} and {@linkplain TimeUnit time unit}.
+     * <p>
+     * {@code maxDepth} and {@code autoStart} are set to the configured default values.
      *
-     * @param label     The label for this profiler
+     * @param label     A string identifier for this profiler. Must not be {@code null}.
      * @param precision The timing {@linkplain TimeUnit precision} for this profiler
+     * @throws IllegalArgumentException if {@code maxDepth} is less than or equal to zero.
+     * @throws NullPointerException     if {@code label} is {@code null}.
      */
-    public Profiler(String label, TimeUnit precision) {
+    public Profiler(@NotNull String label, @NotNull TimeUnit precision) {
         this(label, precision, Config.defaultMaxDepth());
     }
 
     /**
      * Constructs a new profiler with the given {@code label} and {@linkplain TimeUnit time unit}.
+     * <p>
+     * {@code autoStart} is set to the configured default value.
      *
-     * @param label     The label for this profiler.
+     * @param label     A string identifier for this profiler. Must not be {@code null}.
      * @param precision The timing {@linkplain TimeUnit precision} for this profiler.
      * @param maxDepth  The maximum path depth of this profiler; must be greater than {@code 0}.
+     * @throws IllegalArgumentException if {@code maxDepth} is less than or equal to zero.
+     * @throws NullPointerException     if {@code label} or {@code precision} is {@code null}.
      * @since 1.2.0
      */
     public Profiler(@NotNull String label, @NotNull TimeUnit precision, int maxDepth) {
+        this(label, precision, maxDepth, Config.defaultAutoStart());
+    }
+
+    /**
+     * Constructs a new {@code Profiler} with the specified parameters.
+     *
+     * @param label     A string identifier for this profiler. Must not be {@code null}.
+     * @param precision The {@link TimeUnit} used to determine the timing precision for this profiler. Must not be {@code null}.
+     * @param maxDepth  The maximum depth of the profiling path. Must be greater than zero.
+     * @param autoStart Indicates whether the profiler should automatically start when pushed to.
+     * @throws IllegalArgumentException if {@code maxDepth} is less than or equal to zero.
+     * @throws NullPointerException     if {@code label} or {@code precision} is {@code null}.
+     */
+    public Profiler(@NotNull String label, @NotNull TimeUnit precision, int maxDepth, boolean autoStart) {
         if (maxDepth <= 0) {
             throw new IllegalArgumentException("maxDepth must be greater than zero");
         }
@@ -86,6 +129,7 @@ public class Profiler implements IProfiler {
         this.map = new LinkedHashMap<>();
         this.factory = new LocDataFactory(precision);
         this.maxDepth = maxDepth;
+        this.autoStart = autoStart;
         this.started = false;
         this.depth = 0;
         this.fullPath = "";
@@ -129,14 +173,20 @@ public class Profiler implements IProfiler {
 
     /**
      * Pushes the given location to the profiler stack.
+     * <p>
+     * If {@linkplain #autoStart} is enabled, this method will automatically start the profiler if it is not already started.
      *
-     * @param location the location to push to.
+     * @param location the location to push onto the stack. Must not contain the {@linkplain Config#pathSeparator() path separator}, and must not be {@code null}.
      * @throws IllegalStateException    if this profiler is not {@linkplain #started}.
      * @throws IllegalArgumentException if the given {@code location} contains the
      *                                  {@linkplain Config#pathSeparator() path separator}.
      */
     @Override
     public void push(@NotNull String location) {
+        if (autoStart && !started) {
+            start();
+        }
+
         checkStarted();
         checkLocationName(location);
 
@@ -190,6 +240,7 @@ public class Profiler implements IProfiler {
      * @throws IllegalArgumentException if the given {@code location} contains the
      *                                  {@linkplain Config#pathSeparator() path separator}.
      */
+    @Nullable
     @Override
     public LocData swapIf(@NotNull String location) {
         if (depth == 1) {
