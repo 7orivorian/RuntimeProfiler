@@ -110,7 +110,7 @@ public class Profiler implements IProfiler {
     }
 
     /**
-     * Stops this profiler.
+     * Stops this profiler if it is started and fully popped, otherwise throws an {@link IllegalStateException}.
      *
      * @return the root {@link LocData}.
      * @throws IllegalStateException if this profiler is not started OR not fully popped.
@@ -118,6 +118,7 @@ public class Profiler implements IProfiler {
     @Override
     public LocData stop() {
         checkStarted();
+
         final LocData data = pop();
         started = false;
         if (!fullPath.isEmpty()) {
@@ -138,6 +139,7 @@ public class Profiler implements IProfiler {
     public void push(@NotNull String location) {
         checkStarted();
         checkLocationName(location);
+
         if (!fullPath.isEmpty()) {
             fullPath += Config.pathSeparator();
         }
@@ -158,18 +160,22 @@ public class Profiler implements IProfiler {
     @Override
     public LocData pop() {
         checkStarted();
+
         if (path.isEmpty()) {
             throw new IllegalStateException("Profiler already popped. Mismatched push/pop?");
         }
+
         final LocData current = getCurrentLocData();
         if (current == null) {
             throw new IllegalStateException("Current LocData is null. Likely due to a mismatched push/pop");
         }
+
         depth--;
         current.pop();
         path.pop();
         fullPath = path.isEmpty() ? "" : path.getFirst();
         currentLocData = null;
+
         return current;
     }
 
@@ -178,7 +184,7 @@ public class Profiler implements IProfiler {
      * <p>
      * More formally, this method pops the stack if {@code depth > 1}, otherwise pushes without popping.
      *
-     * @param location the location to push to.
+     * @param location the location to push onto the stack. Must not contain the {@linkplain Config#pathSeparator() path separator}, and must not be {@code null}.
      * @return the popped {@link LocData} if {@code depth > 1}, otherwise {@code null}.
      * @throws IllegalStateException    if this profiler is not {@linkplain #started}.
      * @throws IllegalArgumentException if the given {@code location} contains the

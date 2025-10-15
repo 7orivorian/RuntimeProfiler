@@ -38,10 +38,10 @@ public record LocDataFactory(@NotNull TimeUnit timeUnit) {
      * Creates a new instance of {@link LocData} based on the provided path. The path is processed to determine the
      * location component.
      *
-     * @param path  the path from which to create the {@link LocData}; must not be null.
+     * @param path  the path from which to create the {@link LocData}; must not be {@code null}.
      * @param depth the depth of this {@link LocData}; must be greater than {@code -1}.
      * @return a new instance of {@link LocData}.
-     * @throws NullPointerException if the path is null.
+     * @throws NullPointerException if the path is {@code null}.
      * @since 1.2.0
      */
     @NotNull
