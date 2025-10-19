@@ -214,7 +214,7 @@ public class Profiler implements IProfiler {
             throw new IllegalStateException("Profiler already popped. Mismatched push/pop?");
         }
 
-        final ProfileEntry current = getCurrentEntry();
+        final ProfileEntry current = getTopEntry();
         if (current == null) {
             throw new IllegalStateException("Current ProfileEntry is null. Likely due to a mismatched push/pop");
         }
@@ -308,18 +308,9 @@ public class Profiler implements IProfiler {
         return autoStart;
     }
 
-    /**
-     * Retrieves the full current profiling path.
-     *
-     * @return the full current path as a non-null string.
-     */
-    @NotNull
-    public String getFullPath() {
-        return fullPath;
-    }
-
     @Nullable
-    public ProfileEntry getCurrentEntry() {
+    @Override
+    public ProfileEntry getTopEntry() {
         if (currentEntry == null) {
             currentEntry = map.get(fullPath);
         }

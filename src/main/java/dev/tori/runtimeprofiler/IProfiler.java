@@ -128,6 +128,14 @@ public interface IProfiler {
     }
 
     /**
+     * Retrieves the top {@link ProfileEntry} from the stack without removing it.
+     *
+     * @return the top {@link ProfileEntry} on the stack, or {@code null} if the stack is empty.
+     */
+    @Nullable
+    ProfileEntry getTopEntry();
+
+    /**
      * Retrieves an unmodifiable view of the entries in the profiler's map.
      *
      * @return a set of map entries, where each entry represents a key-value pair
