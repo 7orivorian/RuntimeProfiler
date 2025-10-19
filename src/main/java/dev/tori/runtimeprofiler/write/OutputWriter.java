@@ -108,7 +108,7 @@ public enum OutputWriter {
             StringBuilder body = new StringBuilder();
             entries.forEach(entry -> {
                 ProfileEntry data = entry.getValue();
-                String percent = new DecimalFormat("#.###").format(((double) data.total() / profiler.getTotalRuntime()) * 100);
+                String percent = new DecimalFormat("#.###").format(((double) data.totalTime() / profiler.getTotalRuntime()) * 100);
                 body.append(data.dataHTML(percent));
             });
 
@@ -149,7 +149,7 @@ public enum OutputWriter {
             StringBuilder body = new StringBuilder();
             entries.forEach(entry -> {
                 ProfileEntry data = entry.getValue();
-                String percent = new DecimalFormat("#.###").format(((double) data.total() / profiler.getTotalRuntime()) * 100);
+                String percent = new DecimalFormat("#.###").format(((double) data.totalTime() / profiler.getTotalRuntime()) * 100);
                 body.append(data.dataMD(percent));
             });
             template = template.replaceAll("\\$tablebody", body.toString());

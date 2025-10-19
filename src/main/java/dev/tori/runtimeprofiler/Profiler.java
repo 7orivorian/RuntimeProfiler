@@ -272,7 +272,7 @@ public class Profiler implements IProfiler {
      */
     @Override
     public long getTotalRuntime() {
-        return map.get("root").total();
+        return map.get("root").totalTime();
     }
 
     /**

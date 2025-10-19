@@ -83,11 +83,11 @@ public class ProfileEntry {
         return id;
     }
 
-    public long total() {
+    public long totalTime() {
         return total;
     }
 
-    public long avg() {
+    public long avgTime() {
         if (visits == 0) {
             return 0L;
         }
@@ -129,7 +129,7 @@ public class ProfileEntry {
     @ApiStatus.Internal
     @NotNull
     public String[] csvRow() {
-        return new String[]{id(), String.valueOf(visits()), String.valueOf(total()), String.valueOf(avg()), String.valueOf(minTime()), String.valueOf(maxTime()), path()};
+        return new String[]{id(), String.valueOf(visits()), String.valueOf(totalTime()), String.valueOf(avgTime()), String.valueOf(minTime()), String.valueOf(maxTime()), path()};
     }
 
     @ApiStatus.Internal
@@ -154,10 +154,10 @@ public class ProfileEntry {
         return "<tr>" +
                 "<th>%s</th>".formatted(id()) +
                 "<td>%s</td>".formatted(visits()) +
-                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, avg(), avg()) +
+                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, avgTime(), avgTime()) +
                 "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, minTime(), minTime()) +
                 "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, maxTime(), maxTime()) +
-                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, total(), total()) +
+                "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, totalTime(), totalTime()) +
                 "<td>%s</td>".formatted(percent + "%") +
                 "<td>%s</td>".formatted(path()) +
                 "</tr>";
@@ -184,10 +184,10 @@ public class ProfileEntry {
         return "<tr>" +
                 "<th>%s</th>".formatted(id()) +
                 "<td>%s</td>".formatted(visits()) +
-                "<td>%s</td>".formatted(avg()) +
+                "<td>%s</td>".formatted(avgTime()) +
                 "<td>%s</td>".formatted(minTime()) +
                 "<td>%s</td>".formatted(maxTime()) +
-                "<td>%s</td>".formatted(total()) +
+                "<td>%s</td>".formatted(totalTime()) +
                 "<td>%s</td>".formatted(percent + "%") +
                 "<td>%s</td>".formatted(path()) +
                 "</tr>";

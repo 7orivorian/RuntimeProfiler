@@ -48,14 +48,14 @@ public enum ConsoleWriter {
                 if (data.depth() > maxPathDepth) {
                     return;
                 }
-                String percent = new DecimalFormat("#.###").format(((double) data.total() / profiler.getTotalRuntime()) * 100);
+                String percent = new DecimalFormat("#.###").format(((double) data.totalTime() / profiler.getTotalRuntime()) * 100);
                 out.println(data.id() + ": visits=%s, Avg=%s, Min=%s, Max=%s, Runtime=%s, %s%s of Runtime"
                         .formatted(
                                 data.visits(),
-                                data.avg(),
+                                data.avgTime(),
                                 data.minTime(),
                                 data.maxTime(),
-                                data.total(),
+                                data.totalTime(),
                                 percent,
                                 "%"
                         )
@@ -75,7 +75,7 @@ public enum ConsoleWriter {
                 out.println(data.id() + ": visits=%s, Avg=%s, Min=%s, Max=%s"
                         .formatted(
                                 data.visits(),
-                                data.avg(),
+                                data.avgTime(),
                                 data.minTime(),
                                 data.maxTime()
                         )
