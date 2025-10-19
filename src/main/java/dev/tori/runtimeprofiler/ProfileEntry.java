@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class LocData {
 
     private final @NotNull String path;
-    private final @NotNull String loc;
+    private final @NotNull String id;
     private final @NotNull TimeUnit timeUnit;
     private final @NotNull Stopwatch stopwatch;
 
@@ -55,7 +55,7 @@ public class LocData {
      */
     public LocData(@NotNull String path, @NotNull String loc, @NotNull TimeUnit timeUnit, int depth) {
         this.path = path;
-        this.loc = loc;
+        this.id = id;
         this.timeUnit = timeUnit;
         this.depth = depth;
         this.stopwatch = new Stopwatch();
@@ -79,8 +79,8 @@ public class LocData {
     }
 
     @NotNull
-    public String loc() {
-        return loc;
+    public String id() {
+        return id;
     }
 
     public long total() {
@@ -129,7 +129,7 @@ public class LocData {
     @ApiStatus.Internal
     @NotNull
     public String[] csvRow() {
-        return new String[]{loc(), String.valueOf(visits()), String.valueOf(total()), String.valueOf(avg()), String.valueOf(minTime()), String.valueOf(maxTime()), path()};
+        return new String[]{id(), String.valueOf(visits()), String.valueOf(total()), String.valueOf(avg()), String.valueOf(minTime()), String.valueOf(maxTime()), path()};
     }
 
     @ApiStatus.Internal
@@ -152,7 +152,7 @@ public class LocData {
     public String dataHTML(String percent) {
         String unit = UnitUtil.abbreviate(timeUnit());
         return "<tr>" +
-                "<th>%s</th>".formatted(loc()) +
+                "<th>%s</th>".formatted(id()) +
                 "<td>%s</td>".formatted(visits()) +
                 "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, avg(), avg()) +
                 "<td><duration unit=\"%s\" original=\"%s\">%s</duration></td>".formatted(unit, minTime(), minTime()) +
@@ -182,7 +182,7 @@ public class LocData {
     @NotNull
     public String dataMD(String percent) {
         return "<tr>" +
-                "<th>%s</th>".formatted(loc()) +
+                "<th>%s</th>".formatted(id()) +
                 "<td>%s</td>".formatted(visits()) +
                 "<td>%s</td>".formatted(avg()) +
                 "<td>%s</td>".formatted(minTime()) +
