@@ -106,7 +106,7 @@ public interface IProfiler {
     /**
      * Swaps the top of the stack for a new entry, or simply pushes if the current top of the stack is root.
      * <p>
-     * More formally, this method pops the stack if {@code depth > 1}, otherwise pushes
+     * More formally, if {@code depth > 1} this method swaps the stack, otherwise it pushes
      * without popping.
      *
      * @param id a string identifier for the new entry. Must not be {@code null}, and must
@@ -120,7 +120,7 @@ public interface IProfiler {
      */
     @Nullable
     default ProfileEntry swapIf(@NotNull String id) {
-        if (getDepth() == 1) {
+        if (getDepth() <= 1) {
             push(id);
             return null;
         }
