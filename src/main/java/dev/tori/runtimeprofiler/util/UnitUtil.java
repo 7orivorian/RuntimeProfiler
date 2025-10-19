@@ -36,9 +36,16 @@ public final class UnitUtil {
 
     @Contract(pure = true)
     private UnitUtil() {
-
+        throw new UnsupportedOperationException("Cannot instantiate utility class");
     }
 
+    /**
+     * Converts a {@link TimeUnit} to its abbreviated string representation.
+     *
+     * @param timeUnit the time unit to be abbreviated; must not be {@code null}
+     * @return the abbreviated string representation of the given time unit
+     * @throws NullPointerException if the timeUnit is {@code null}
+     */
     @NotNull
     @Contract(pure = true)
     public static String abbreviate(@NotNull TimeUnit timeUnit) {
