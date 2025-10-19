@@ -32,12 +32,12 @@ import java.util.concurrent.TimeUnit;
  */
 public final class Config {
 
+    private static @NotNull String pathSeparator = "/";
+    private static @NotNull TimeUnit defaultTimeUnit = TimeUnit.NANOSECONDS;
     /**
      * @since 1.2.0
      */
-    private static int defaultMaxDepth = 100;
-    private static @NotNull String pathSeparator = "/";
-    private static @NotNull TimeUnit defaultTimeUnit = TimeUnit.NANOSECONDS;
+    private static int defaultMaxDepth = 1000;
     /**
      * @since 3.0.0
      */
