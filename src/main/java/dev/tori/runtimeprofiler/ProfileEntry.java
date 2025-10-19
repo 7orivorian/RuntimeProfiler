@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
  * @since 1.0.0
  */
-public class LocData {
+public class ProfileEntry {
 
     private final @NotNull String path;
     private final @NotNull String id;
@@ -53,7 +53,7 @@ public class LocData {
     /**
      * @since 1.2.0
      */
-    public LocData(@NotNull String path, @NotNull String loc, @NotNull TimeUnit timeUnit, int depth) {
+    public ProfileEntry(@NotNull String path, @NotNull String id, @NotNull TimeUnit timeUnit, int depth) {
         this.path = path;
         this.id = id;
         this.timeUnit = timeUnit;

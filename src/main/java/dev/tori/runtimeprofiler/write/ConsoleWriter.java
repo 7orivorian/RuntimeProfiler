@@ -22,7 +22,7 @@
 package dev.tori.runtimeprofiler.write;
 
 import dev.tori.runtimeprofiler.IProfiler;
-import dev.tori.runtimeprofiler.LocData;
+import dev.tori.runtimeprofiler.ProfileEntry;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,7 +44,7 @@ public enum ConsoleWriter {
         public void print(@NotNull IProfiler profiler, @NotNull PrintStream out, int maxPathDepth) {
             out.println(profiler.getLabel());
             profiler.getEntries().forEach(entry -> {
-                LocData data = entry.getValue();
+                ProfileEntry data = entry.getValue();
                 if (data.depth() > maxPathDepth) {
                     return;
                 }
@@ -68,7 +68,7 @@ public enum ConsoleWriter {
         public void print(@NotNull IProfiler profiler, @NotNull PrintStream out, int maxPathDepth) {
             out.println(profiler.getLabel());
             profiler.getEntries().forEach(entry -> {
-                LocData data = entry.getValue();
+                ProfileEntry data = entry.getValue();
                 if (data.depth() > maxPathDepth) {
                     return;
                 }

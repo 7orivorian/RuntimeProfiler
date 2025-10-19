@@ -23,7 +23,7 @@ package dev.tori.runtimeprofiler.write;
 
 import com.opencsv.CSVWriter;
 import dev.tori.runtimeprofiler.IProfiler;
-import dev.tori.runtimeprofiler.LocData;
+import dev.tori.runtimeprofiler.ProfileEntry;
 import dev.tori.runtimeprofiler.util.IOUtil;
 import dev.tori.runtimeprofiler.util.UnitUtil;
 import org.jetbrains.annotations.Contract;
@@ -67,9 +67,9 @@ public enum OutputWriter {
         public void writeToPath(@NotNull IProfiler profiler, @NotNull Path path) throws IOException {
             checkPathExists(path);
             try (CSVWriter writer = new CSVWriter(new FileWriter(new File(String.valueOf(path), generateDateSuffix(profiler.getLabel()) + fileExtension())))) {
-                writer.writeNext(LocData.csvHeaders(profiler.getTimingPrecision()), true);
+                writer.writeNext(ProfileEntry.csvHeaders(profiler.getTimingPrecision()), true);
                 profiler.getEntries().forEach(entry -> {
-                    LocData data = entry.getValue();
+                    ProfileEntry data = entry.getValue();
 
                     writer.writeNext(data.csvRow(), true);
                 });
@@ -94,7 +94,7 @@ public enum OutputWriter {
             String label = profiler.getLabel();
             String title = label + " " + date;
 
-            template = template.replace("$tableheader", LocData.headerHTML());
+            template = template.replace("$tableheader", ProfileEntry.headerHTML());
 
             template = template.replaceAll("\\$title", title);
             template = template.replaceAll("\\$label", label);
@@ -103,11 +103,11 @@ public enum OutputWriter {
             template = template.replaceAll("\\$timeunit", unitName.substring(0, unitName.length() - 1));
             template = template.replaceAll("\\$abbrtimeunit", UnitUtil.abbreviate(timingPrecision));
 
-            Set<Map.Entry<String, LocData>> entries = profiler.getEntries();
+            Set<Map.Entry<String, ProfileEntry>> entries = profiler.getEntries();
 
             StringBuilder body = new StringBuilder();
             entries.forEach(entry -> {
-                LocData data = entry.getValue();
+                ProfileEntry data = entry.getValue();
                 String percent = new DecimalFormat("#.###").format(((double) data.total() / profiler.getTotalRuntime()) * 100);
                 body.append(data.dataHTML(percent));
             });
@@ -135,7 +135,7 @@ public enum OutputWriter {
             String label = profiler.getLabel();
             String title = label + " " + date;
 
-            template = template.replace("$tableheader", LocData.headerMD());
+            template = template.replace("$tableheader", ProfileEntry.headerMD());
 
             template = template.replaceAll("\\$title", title);
             template = template.replaceAll("\\$label", label);
@@ -144,11 +144,11 @@ public enum OutputWriter {
             template = template.replaceAll("\\$timeunit", unitName.substring(0, unitName.length() - 1));
             template = template.replaceAll("\\$abbrtimeunit", UnitUtil.abbreviate(timingPrecision));
 
-            Set<Map.Entry<String, LocData>> entries = profiler.getEntries();
+            Set<Map.Entry<String, ProfileEntry>> entries = profiler.getEntries();
 
             StringBuilder body = new StringBuilder();
             entries.forEach(entry -> {
-                LocData data = entry.getValue();
+                ProfileEntry data = entry.getValue();
                 String percent = new DecimalFormat("#.###").format(((double) data.total() / profiler.getTotalRuntime()) * 100);
                 body.append(data.dataMD(percent));
             });
