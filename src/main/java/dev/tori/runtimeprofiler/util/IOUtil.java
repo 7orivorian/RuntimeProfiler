@@ -21,7 +21,6 @@
 
 package dev.tori.runtimeprofiler.util;
 
-import dev.tori.runtimeprofiler.write.OutputWriter;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
@@ -43,7 +42,7 @@ public final class IOUtil {
 
     public static String readResourceAsString(String resourcePath) {
         // Use the class loader to get the resource as an InputStream
-        InputStream inputStream = OutputWriter.class.getClassLoader().getResourceAsStream(resourcePath);
+        InputStream inputStream = IOUtil.class.getClassLoader().getResourceAsStream(resourcePath);
 
         if (inputStream == null) {
             throw new IllegalArgumentException("Resource not found: " + resourcePath);
