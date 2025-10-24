@@ -35,19 +35,50 @@ import java.util.concurrent.TimeUnit;
  */
 public class Profiler implements IProfiler {
 
+    private static final ProfileEntry BLANK_ENTRY = new ProfileEntry("", "", 0, TimeUnit.NANOSECONDS);
+
     private final @NotNull String label;
-    private final @NotNull LinkedList<String> path;
+    private final @NotNull LinkedList<String> stack;
+    /**
+     * A map storing profiler entries, where each key is the full path of
+     * associated {@link ProfileEntry} value.
+     * The entries are maintained in the order in which they were inserted.
+     * This map is used internally by the profiler to manage and organize
+     * profiling data.
+     *
+     * <ul>
+     *   <li>Key: A unique, non-null string representing the full path of the associated {@link ProfileEntry}.</li>
+     *   <li>Value: A {@link ProfileEntry} representing the profiling data associated with the key.</li>
+     * </ul>
+     * <p>
+     * This field is guaranteed to be non-null and uses a {@link LinkedHashMap}
+     * implementation to ensure insertion order is preserved.
+     *
+     * @see ProfileEntry
+     * @see LinkedHashMap
+     */
     private final @NotNull LinkedHashMap<String, ProfileEntry> map;
-    private final @NotNull ProfileEntryFactory factory;
     private final int maxDepth;
     /**
-     * @since 3.0.0
+     * Indicates whether the profiler should automatically start when it is pushed to.
+     *
+     * @see #push(String)
      */
     private final boolean autoStart;
+    /**
+     * Specifies the timing precision of the {@code Profiler}.
+     * <p>
+     * The value is represented as a {@link TimeUnit}, which determines the unit of time
+     * used for measuring and reporting execution durations within the profiler.
+     * <p>
+     * Must not be {@code null}.
+     *
+     * @since 3.0.0
+     */
+    private final @NotNull TimeUnit precision;
 
     private boolean started;
     private int depth;
-    private @NotNull String fullPath;
     private @Nullable ProfileEntry currentEntry;
 
     /**
@@ -119,15 +150,34 @@ public class Profiler implements IProfiler {
      */
     public Profiler(@NotNull String label, @NotNull TimeUnit precision, @Range(from = 1, to = Integer.MAX_VALUE) int maxDepth, boolean autoStart) {
         this.label = label;
-        this.path = new LinkedList<>();
-        this.map = new LinkedHashMap<>();
-        this.factory = new ProfileEntryFactory(precision);
+        this.precision = precision;
         this.maxDepth = maxDepth;
         this.autoStart = autoStart;
+
+        this.stack = new LinkedList<>();
+        this.map = new LinkedHashMap<>();
+
         this.started = false;
-        this.depth = 0;
-        this.fullPath = "";
-        this.currentEntry = null;
+
+        this.reset();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException {@inheritDoc}
+     */
+    @Override
+    public void reset() {
+        if (isStarted()) {
+            throw new IllegalStateException("Cannot reset profiler while it is started.");
+        }
+
+        stack.clear();
+        map.clear();
+        depth = 0;
+        currentEntry = null;
     }
 
     /**
@@ -140,11 +190,13 @@ public class Profiler implements IProfiler {
         if (isStarted()) {
             throw new IllegalStateException("Profiler session already started");
         }
-        map.clear();
-        path.clear();
-        fullPath = "";
+
+        // Reset state
+        reset();
+
+        // Start session
         started = true;
-        push("root");
+        push(Config.defaultRootId());
     }
 
     /**
@@ -158,11 +210,16 @@ public class Profiler implements IProfiler {
     public ProfileEntry stop() {
         checkStarted();
 
-        final ProfileEntry data = pop();
-        started = false;
-        if (!fullPath.isEmpty()) {
-            throw new IllegalStateException("Profiler session ended before path was fully popped (remainder %s). Mismatched push/pop?".formatted(fullPath));
+        if (depth > 1) {
+            if (currentEntry == null) {
+                throw new IllegalStateException("Profiler session ended before path was fully popped. Mismatched push/pop?");
+            }
+            throw new IllegalStateException("Profiler session ended before path was fully popped (remainder %s). Mismatched push/pop?".formatted(currentEntry.path()));
         }
+
+        final ProfileEntry data = pop();
+
+        started = false;
         return data;
     }
 
@@ -190,13 +247,18 @@ public class Profiler implements IProfiler {
             throw new IllegalStateException("Maximum path depth of %s exceeded".formatted(maxDepth));
         }
 
-        if (!fullPath.isEmpty()) {
-            fullPath += Config.pathSeparator();
+        String path;
+        if (currentEntry == null) {
+            path = id;
+        } else {
+            path = currentEntry.path() + Config.pathSeparator() + id;
         }
-        fullPath += id;
+        currentEntry = new ProfileEntry(path, id, depth, precision);
 
-        path.push(fullPath);
-        map.computeIfAbsent(fullPath, key -> factory.create(fullPath, depth)).push();
+        final ProfileEntry entry = currentEntry;
+
+        stack.push(path);
+        map.computeIfAbsent(path, key -> entry).start();
     }
 
     /**
@@ -210,22 +272,29 @@ public class Profiler implements IProfiler {
     public ProfileEntry pop() {
         checkStarted();
 
-        if (path.isEmpty()) {
-            throw new IllegalStateException("Profiler already popped. Mismatched push/pop?");
+        if (currentEntry == null) {
+            throw new IllegalStateException("Profiler already fully popped. Mismatched push/pop?");
         }
 
-        final ProfileEntry current = getTopEntry();
-        if (current == null) {
-            throw new IllegalStateException("Current ProfileEntry is null. Likely due to a mismatched push/pop");
+        final ProfileEntry popped = currentEntry.stop();
+
+        stack.pop();
+
+        if (stack.isEmpty()) {
+            currentEntry = null;
+        } else {
+            currentEntry = map.get(stack.getFirst());
         }
 
         depth--;
-        current.pop();
-        path.pop();
-        fullPath = path.isEmpty() ? "" : path.getFirst();
-        currentEntry = null;
 
-        return current;
+        return popped;
+    }
+
+    @Nullable
+    @Override
+    public ProfileEntry getCurrentEntry() {
+        return currentEntry;
     }
 
     /**
@@ -262,7 +331,7 @@ public class Profiler implements IProfiler {
     @NotNull
     @Override
     public TimeUnit getTimingPrecision() {
-        return factory.timeUnit();
+        return precision;
     }
 
     /**
@@ -272,7 +341,7 @@ public class Profiler implements IProfiler {
      */
     @Override
     public long getTotalRuntime() {
-        return map.get("root").totalTime();
+        return map.getOrDefault(Config.defaultRootId(), BLANK_ENTRY).totalTime();
     }
 
     /**
@@ -306,15 +375,6 @@ public class Profiler implements IProfiler {
     @Override
     public boolean canAutoStart() {
         return autoStart;
-    }
-
-    @Nullable
-    @Override
-    public ProfileEntry getTopEntry() {
-        if (currentEntry == null) {
-            currentEntry = map.get(fullPath);
-        }
-        return currentEntry;
     }
 
     /**

@@ -46,10 +46,22 @@ import java.util.concurrent.TimeUnit;
 public interface IProfiler {
 
     /**
+     * Resets the state of the profiler.
+     * <p>
+     * Returns the profiler to its initial unstarted state. This method is typically used
+     * to prepare the profiler for a fresh start or to discard previous profiling session data.
+     *
+     * @throws IllegalStateException if the profiler is currently started.
+     * @implSpec Implementations must reset the profiler's internal state to its initial unstarted state.
+     */
+    void reset();
+
+    /**
      * Starts a new profiling session, resetting any previously collected state and
      * transitioning this profiler to the started state.
      *
      * @throws IllegalStateException if the profiler is already started.
+     * @implSpec Implementations must reset the profiler's internal state to its initial unstarted state with {@link #reset()}.
      */
     void start();
 
@@ -58,8 +70,8 @@ public interface IProfiler {
      *
      * @return the root {@link ProfileEntry}.
      * @throws IllegalStateException if the profiler is not started, or if there are
-     *                               unpopped entries when attempting to stop.
-     * @implSpec Implementations must require that all pushed entries have been popped at
+     *                               unpopped entries (except for the root) when attempting to stop.
+     * @implSpec Implementations must require that all pushed entries have been popped (except for the root) at
      * the time of stopping, and this method must return the root {@link ProfileEntry}.
      */
     @NotNull
@@ -133,7 +145,7 @@ public interface IProfiler {
      * @return the top {@link ProfileEntry} on the stack, or {@code null} if the stack is empty.
      */
     @Nullable
-    ProfileEntry getTopEntry();
+    ProfileEntry getCurrentEntry();
 
     /**
      * Retrieves an unmodifiable view of the entries in the profiler's map.

@@ -53,24 +53,28 @@ public class ProfileEntry {
     /**
      * @since 1.2.0
      */
-    public ProfileEntry(@NotNull String path, @NotNull String id, @NotNull TimeUnit timeUnit, int depth) {
+    public ProfileEntry(@NotNull String path, @NotNull String id, int depth, @NotNull TimeUnit timeUnit) {
         this.path = path;
         this.id = id;
-        this.timeUnit = timeUnit;
         this.depth = depth;
+        this.timeUnit = timeUnit;
         this.stopwatch = new Stopwatch();
     }
 
-    public void push() {
+    public ProfileEntry start() {
         stopwatch.snap(timeUnit);
+
+        return this;
     }
 
-    public void pop() {
+    public ProfileEntry stop() {
         visits++;
         long elapsed = stopwatch.snap(timeUnit);
         total += elapsed;
         maxTime = Math.max(elapsed, maxTime);
         minTime = Math.min(elapsed, minTime);
+
+        return this;
     }
 
     @NotNull
