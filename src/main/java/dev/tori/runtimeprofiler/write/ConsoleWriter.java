@@ -21,8 +21,8 @@
 
 package dev.tori.runtimeprofiler.write;
 
-import dev.tori.runtimeprofiler.IProfiler;
-import dev.tori.runtimeprofiler.ProfileEntry;
+import dev.tori.runtimeprofiler.profiler.IProfiler;
+import dev.tori.runtimeprofiler.profiler.ProfileEntry;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

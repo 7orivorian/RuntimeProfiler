@@ -22,8 +22,8 @@
 package dev.tori.runtimeprofiler.write;
 
 import com.opencsv.CSVWriter;
-import dev.tori.runtimeprofiler.IProfiler;
-import dev.tori.runtimeprofiler.ProfileEntry;
+import dev.tori.runtimeprofiler.profiler.IProfiler;
+import dev.tori.runtimeprofiler.profiler.ProfileEntry;
 import dev.tori.runtimeprofiler.util.IOUtil;
 import dev.tori.runtimeprofiler.util.UnitUtil;
 import org.jetbrains.annotations.Contract;

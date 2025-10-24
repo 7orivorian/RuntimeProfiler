@@ -21,8 +21,8 @@
 
 package manual_tests;
 
-import dev.tori.runtimeprofiler.IProfiler;
-import dev.tori.runtimeprofiler.Profiler;
+import dev.tori.runtimeprofiler.profiler.IProfiler;
+import dev.tori.runtimeprofiler.profiler.Profiler;
 import dev.tori.runtimeprofiler.write.OutputWriter;
 
 import java.io.File;

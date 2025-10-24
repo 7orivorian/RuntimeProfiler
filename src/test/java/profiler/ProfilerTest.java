@@ -21,8 +21,8 @@
 
 package profiler;
 
-import dev.tori.runtimeprofiler.IProfiler;
-import dev.tori.runtimeprofiler.Profiler;
+import dev.tori.runtimeprofiler.profiler.IProfiler;
+import dev.tori.runtimeprofiler.profiler.Profiler;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;

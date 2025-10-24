@@ -19,7 +19,7 @@
  * THE SOFTWARE.
  */
 
-package dev.tori.runtimeprofiler;
+package dev.tori.runtimeprofiler.profiler;
 
 import dev.tori.runtimeprofiler.config.Config;
 import org.jetbrains.annotations.*;
