@@ -1,4 +1,4 @@
-# Profiler — $label
+# Profiler - $label
 
 ### Generated on $date
 
