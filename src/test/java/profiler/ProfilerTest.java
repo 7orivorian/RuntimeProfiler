@@ -21,6 +21,7 @@
 
 package profiler;
 
+import dev.tori.runtimeprofiler.IProfiler;
 import dev.tori.runtimeprofiler.Profiler;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -37,14 +38,20 @@ public class ProfilerTest {
 
     @NotNull
     @Contract("_ -> new")
-    static Profiler createProfiler(boolean autoStart) {
-        // Do not rely on Config
-        return new Profiler("Test", TimeUnit.NANOSECONDS, Integer.MAX_VALUE, autoStart);
+    static IProfiler createProfiler(boolean autoStart) {
+        return createProfiler(Integer.MAX_VALUE, autoStart);
+    }
+
+    @NotNull
+    @Contract("_, _ -> new")
+    static IProfiler createProfiler(int maxDepth, boolean autoStart) {
+        // Specify every parameter explicitly to avoid accidental changes.
+        return new Profiler("Test", TimeUnit.NANOSECONDS, maxDepth, autoStart);
     }
 
     @Test
     void testMultipleStart() {
-        Profiler profiler = createProfiler(false);
+        IProfiler profiler = createProfiler(false);
         profiler.start();
 
         Assertions.assertThrows(IllegalStateException.class, profiler::start);
@@ -52,14 +59,14 @@ public class ProfilerTest {
 
     @Test
     void testPushBeforeStart() {
-        Profiler profiler = createProfiler(false);
+        IProfiler profiler = createProfiler(false);
 
         Assertions.assertThrows(IllegalStateException.class, () -> profiler.push("test"));
     }
 
     @Test
     void testPushAfterStop() {
-        Profiler profiler = createProfiler(false);
+        IProfiler profiler = createProfiler(false);
 
         profiler.start();
         profiler.stop();
@@ -69,7 +76,7 @@ public class ProfilerTest {
 
     @Test
     void testPopBeforeStart() {
-        Profiler profiler = createProfiler(false);
+        IProfiler profiler = createProfiler(false);
 
         Assertions.assertThrows(IllegalStateException.class, profiler::pop);
 
@@ -79,7 +86,7 @@ public class ProfilerTest {
 
     @Test
     void testAutoStartPush() {
-        Profiler profiler = createProfiler(true);
+        IProfiler profiler = createProfiler(true);
 
         Assertions.assertTrue(profiler.canAutoStart());
 
@@ -88,28 +95,25 @@ public class ProfilerTest {
 
     @Test
     void testAutoStartSwap() {
-        Profiler profiler = createProfiler(true);
+        IProfiler profiler = createProfiler(true);
 
         Assertions.assertTrue(profiler.canAutoStart());
 
         Assertions.assertDoesNotThrow(() -> profiler.swapIf("test"));
     }
 
-    /* Basic Getters */
+    /* Depth */
 
     @Test
-    void testIsStarted() {
-        Profiler profiler = createProfiler(true);
+    void testMaxDepth() {
+        IProfiler profiler = createProfiler(3, false);
 
-        Assertions.assertFalse(profiler.isStarted());
-
-        profiler.start();
-        Assertions.assertTrue(profiler.isStarted());
+        Assertions.assertThrows(IllegalStateException.class, () -> profiler.push("test"));
     }
 
     @Test
     void testDepthGetter() {
-        Profiler profiler = createProfiler(false);
+        IProfiler profiler = createProfiler(false);
 
         Assertions.assertEquals(0, profiler.getDepth());
 
@@ -124,5 +128,27 @@ public class ProfilerTest {
 
         profiler.stop();
         Assertions.assertEquals(0, profiler.getDepth());
+    }
+
+    /* Basic Getters */
+
+    @Test
+    void testIsStarted() {
+        IProfiler profiler = createProfiler(true);
+
+        Assertions.assertFalse(profiler.isStarted());
+
+        profiler.start();
+        Assertions.assertTrue(profiler.isStarted());
+    }
+
+    @Test
+    void testRuntimeGetter() {
+        IProfiler profiler = createProfiler(false);
+
+        // The runtime of a profiler that has never been started should be 0,
+        // and attempts to retrieve the runtime should not throw an exception.
+        Assertions.assertDoesNotThrow(profiler::getTotalRuntime);
+        Assertions.assertEquals(0, profiler.getTotalRuntime());
     }
 }
