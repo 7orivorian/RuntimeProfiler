@@ -91,7 +91,7 @@ public class Profiler implements IProfiler {
      * @throws NullPointerException     if {@code label} is {@code null}.
      */
     public Profiler(String label) {
-        this(label, Config.defaultTimeUnit(), Config.defaultMaxDepth());
+        this(label, Config.timingPrecision(), Config.maxDepth());
     }
 
     /**
@@ -105,7 +105,7 @@ public class Profiler implements IProfiler {
      * @throws NullPointerException     if {@code label} is {@code null}.
      */
     public Profiler(String label, boolean autoStart) {
-        this(label, Config.defaultTimeUnit(), Config.defaultMaxDepth(), autoStart);
+        this(label, Config.timingPrecision(), Config.maxDepth(), autoStart);
     }
 
     /**
@@ -119,7 +119,7 @@ public class Profiler implements IProfiler {
      * @throws NullPointerException     if {@code label} is {@code null}.
      */
     public Profiler(String label, TimeUnit precision) {
-        this(label, precision, Config.defaultMaxDepth());
+        this(label, precision, Config.maxDepth());
     }
 
     /**
@@ -135,7 +135,7 @@ public class Profiler implements IProfiler {
      * @since 1.2.0
      */
     public Profiler(String label, TimeUnit precision, int maxDepth) {
-        this(label, precision, maxDepth, Config.defaultAutoStart());
+        this(label, precision, maxDepth, Config.autoStart());
     }
 
     /**
@@ -196,7 +196,7 @@ public class Profiler implements IProfiler {
 
         // Start session
         started = true;
-        push(Config.defaultRootId());
+        push(Config.rootId());
     }
 
     /**
@@ -341,7 +341,7 @@ public class Profiler implements IProfiler {
      */
     @Override
     public long getTotalRuntime() {
-        return map.getOrDefault(Config.defaultRootId(), BLANK_ENTRY).totalTime();
+        return map.getOrDefault(Config.rootId(), BLANK_ENTRY).totalTime();
     }
 
     /**

@@ -25,127 +25,88 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Global profiler configuration.
+ * <p>
+ * Configurations can be loaded from a {@linkplain ConfigPreset preset} or manually set.
  *
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
- * @since 1.0.0
+ * @since 3.0.0
  */
 public final class Config {
 
-    private static @NotNull String pathSeparator = "/";
-    private static @NotNull TimeUnit defaultPrecision = TimeUnit.NANOSECONDS;
-    /**
-     * @since 1.2.0
-     */
-    private static int defaultMaxDepth = 1000;
-    /**
-     * @since 3.0.0
-     */
-    private static boolean defaultAutoStart = false;
-    /**
-     * @since 3.0.0
-     */
-    private static @NotNull String defaultRootId = "root";
+    private static final ConfigPreset cfg = new ConfigPreset();
 
     @Contract(pure = true)
     private Config() {
         throw new UnsupportedOperationException("Cannot instantiate utility class");
     }
 
-    /**
-     * Returns the configured path separator.
-     *
-     * @return the default path separator as a string.
-     */
+    public void loadPreset(@NotNull ConfigPreset preset) {
+        cfg.rootId(preset.rootId());
+        cfg.pathSeparator(preset.pathSeparator());
+        cfg.timingPrecision(preset.timingPrecision());
+        cfg.dateTimeFormatter(preset.dateTimeFormatter());
+        cfg.autoStart(preset.autoStart());
+        cfg.maxDepth(preset.maxDepth());
+    }
+
     @NotNull
-    @Contract(pure = true)
+    public static String rootId() {
+        return cfg.rootId();
+    }
+
+    public static void setRootId(@NotNull String rootId) {
+        cfg.rootId(rootId);
+    }
+
+    @NotNull
     public static String pathSeparator() {
-        return pathSeparator;
+        return cfg.pathSeparator();
     }
 
-    /**
-     * Sets the default path separator for all profilers. The provided path separator
-     * cannot be empty.
-     *
-     * @param pathSeparator the new path separator to set. Must be a non-empty string.
-     * @throws IllegalArgumentException if the provided path separator is empty.
-     */
     public static void setPathSeparator(@NotNull String pathSeparator) {
-        if (pathSeparator.isEmpty()) {
-            throw new IllegalArgumentException("Path separator cannot be empty.");
-        }
-        Config.pathSeparator = pathSeparator;
-    }
-
-    /**
-     * @since 1.2.0
-     */
-    @Contract(pure = true)
-    public static int defaultMaxDepth() {
-        return defaultMaxDepth;
-    }
-
-    /**
-     * Sets the default maximum depth for all profilers.
-     *
-     * @param defaultMaxDepth the new default maximum depth to set. Must be an integer
-     *                        value in range {@code [1, Integer.MAX_VALUE]}.
-     * @since 1.2.0
-     */
-    public static void setDefaultMaxDepth(@Range(from = 1, to = Integer.MAX_VALUE) int defaultMaxDepth) {
-        Config.defaultMaxDepth = defaultMaxDepth;
+        cfg.pathSeparator(pathSeparator);
     }
 
     @NotNull
-    @Contract(pure = true)
-    public static TimeUnit defaultTimeUnit() {
-        return defaultPrecision;
+    public static TimeUnit timingPrecision() {
+        return cfg.timingPrecision();
     }
 
-    public static void setDefaultPrecision(@NotNull TimeUnit precision) {
-        Config.defaultPrecision = precision;
+    public static void setTimingPrecision(@NotNull TimeUnit precision) {
+        cfg.timingPrecision(precision);
     }
 
-    /**
-     * @since 3.0.0
-     */
-    @Contract(pure = true)
-    public static boolean defaultAutoStart() {
-        return defaultAutoStart;
-    }
-
-    /**
-     * @since 3.0.0
-     */
-    public static void setDefaultAutoStart(boolean defaultAutoStart) {
-        Config.defaultAutoStart = defaultAutoStart;
-    }
-
-    /**
-     * @since 3.0.0
-     */
     @NotNull
-    @Contract(pure = true)
-    public static String defaultRootId() {
-        return defaultRootId;
+    public static DateTimeFormatter dateTimeFormatter() {
+        return cfg.dateTimeFormatter();
     }
 
-    /**
-     * Sets the default root ID for all profilers. The provided root ID cannot be empty
-     * or contain the {@linkplain #pathSeparator path separator} defined in the configuration.
-     *
-     * @param defaultRootId the new default root ID to set. Must be a non-null, non-empty string,
-     *                      and must not contain the {@linkplain #pathSeparator path separator}.
-     * @throws IllegalArgumentException if the provided root ID is empty or contains the path separator.
-     * @since 3.0.0
-     */
-    public static void setDefaultRootId(@NotNull String defaultRootId) {
-        if (defaultRootId.isEmpty() || defaultRootId.contains(pathSeparator)) {
-            throw new IllegalArgumentException("Invalid root id: '" + defaultRootId + "'. Cannot be empty or contain path separator '" + pathSeparator + "'.");
-        }
-        Config.defaultRootId = defaultRootId;
+    public static void setDateTimeFormatter(@NotNull String pattern) {
+        cfg.dateTimeFormatter(pattern);
+    }
+
+    public static void setDateTimeFormatter(@NotNull DateTimeFormatter formatter) {
+        cfg.dateTimeFormatter(formatter);
+    }
+
+    public static int maxDepth() {
+        return cfg.maxDepth();
+    }
+
+    public static void setMaxDepth(@Range(from = 1, to = Integer.MAX_VALUE) int maxDepth) {
+        cfg.maxDepth(maxDepth);
+    }
+
+    public static boolean autoStart() {
+        return cfg.autoStart();
+    }
+
+    public static void setAutoStart(boolean autoStart) {
+        cfg.autoStart(autoStart);
     }
 }
