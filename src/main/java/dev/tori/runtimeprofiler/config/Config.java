@@ -66,7 +66,13 @@ public class Config {
      */
     private @NotNull TimeUnit timingPrecision;
     /**
-     * Represents the {@link DateTimeFormatter} used to format and parse date-times when generating reports.
+     * Specifies the pattern used for formatting and parsing date-time values in the configuration.
+     * This pattern follows the rules defined by {@link DateTimeFormatter#ofPattern(String)}.
+     * It must be a valid, non-null string that represents a date-time format.
+     */
+    private @NotNull String dateTimePattern;
+    /**
+     * Represents the {@link DateTimeFormatter} used to format and parse date-times (e.g., when generating reports).
      */
     private @NotNull DateTimeFormatter dateTimeFormatter;
     /**
@@ -98,7 +104,7 @@ public class Config {
                 "root",
                 "/",
                 TimeUnit.NANOSECONDS,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss.SSS"),
+                "yyyy-MM-dd-HH-mm-ss.SSS",
                 false,
                 1000
         );
@@ -119,14 +125,15 @@ public class Config {
             @NotNull String rootId,
             @NotNull String pathSeparator,
             @NotNull TimeUnit timingPrecision,
-            @NotNull DateTimeFormatter dateTimeFormatter,
+            @NotNull String dateTimePattern,
             boolean autoStart,
             int maxDepth
     ) {
         this.rootId = rootId;
         this.pathSeparator = pathSeparator;
         this.timingPrecision = timingPrecision;
-        this.dateTimeFormatter = dateTimeFormatter;
+        this.dateTimePattern = dateTimePattern;
+        this.dateTimeFormatter = DateTimeFormatter.ofPattern(dateTimePattern);
         this.autoStart = autoStart;
         this.maxDepth = maxDepth;
     }
@@ -143,6 +150,7 @@ public class Config {
         this.rootId = cfg.rootId;
         this.pathSeparator = cfg.pathSeparator;
         this.timingPrecision = cfg.timingPrecision;
+        this.dateTimePattern = cfg.dateTimePattern;
         this.dateTimeFormatter = cfg.dateTimeFormatter;
         this.autoStart = cfg.autoStart;
         this.maxDepth = cfg.maxDepth;
@@ -199,9 +207,14 @@ public class Config {
         return timingPrecision;
     }
 
-    public Config timingPrecision(@NotNull TimeUnit timingPrecision) {
-        this.timingPrecision = timingPrecision;
+    public Config timingPrecision(@NotNull TimeUnit unit) {
+        this.timingPrecision = unit;
         return this;
+    }
+
+    @NotNull
+    public String dateTimePattern() {
+        return dateTimePattern;
     }
 
     @NotNull
@@ -219,11 +232,8 @@ public class Config {
      * @throws NullPointerException     if the provided {@code pattern} is {@code null}.
      */
     public Config dateTimeFormatter(@NotNull String pattern) {
-        return dateTimeFormatter(DateTimeFormatter.ofPattern(pattern));
-    }
-
-    public Config dateTimeFormatter(@NotNull DateTimeFormatter formatter) {
-        this.dateTimeFormatter = formatter;
+        this.dateTimePattern = pattern;
+        this.dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         return this;
     }
 
