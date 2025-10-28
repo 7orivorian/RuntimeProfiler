@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 7orivorian.
+ * Copyright (c) 2025 7orivorian.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,190 +23,242 @@ package dev.tori.runtimeprofiler.profiler;
 
 import dev.tori.runtimeprofiler.config.Config;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.function.Consumer;
 
 /**
- * Profiler interface for hierarchical runtime profiling.
+ * Represents a profiler interface for managing and tracking performance profiling
+ * sessions in a hierarchical node structure. Each session consists of multiple
+ * profiling entries, which are organized in a parent-child hierarchy.
  * <p>
- * An {@code IProfiler} maintains a logical stack of profiling entries identified by caller-provided
- * {@linkplain String ids}. Calls to {@link #push(String)} and {@link #pop()} delineate nested
- * scopes; {@link #start()} and {@link #stop()} bracket a single profiling session.
+ * {@linkplain IProfiler} provides methods to start and stop the profiling session,
+ * manage entries (push/pop), retrieve the root and current entries, validate IDs,
+ * and traverse the profiling structure.
  *
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
- * @implNote Unless otherwise documented by a particular implementation, instances are not thread-safe
- * and are intended for single-threaded use within a session.
+ * @see ProfilerNode
  * @see Profiler
- * @since 1.0.0
+ * @since 3.0.0
  */
 public interface IProfiler {
 
     /**
-     * Resets the state of the profiler.
-     * <p>
-     * Returns the profiler to its initial unstarted state. This method is typically used
-     * to prepare the profiler for a fresh start or to discard previous profiling session data.
+     * Collects all {@link ProfilerNode} instances traversed by the given profiler
+     * into a {@link LinkedHashMap}, where the keys are the paths associated with the nodes.
+     * The collection process is based on the profiler's traversal function.
      *
-     * @throws IllegalStateException if the profiler is currently started.
-     * @implSpec Implementations must reset the profiler's internal state to its initial unstarted state.
+     * @param profiler the {@link IProfiler} instance used to traverse the profiling structure
+     *                 and collect the nodes; must not be {@code null}.
+     * @return a {@link LinkedHashMap} containing all collected {@link ProfilerNode} instances,
+     * keyed by their associated paths.
      */
-    void reset();
+    @NotNull
+    static LinkedHashMap<String, ProfilerNode> collectNodes(@NotNull IProfiler profiler) {
+        LinkedHashMap<String, ProfilerNode> nodes = new LinkedHashMap<>();
+        profiler.walk(node -> nodes.put(node.path(), node));
+        return nodes;
+    }
 
     /**
-     * Starts a new profiling session, resetting any previously collected state and
-     * transitioning this profiler to the started state.
+     * Collects all {@link ProfilerNode} instances traversed by the given profiler
+     * into a {@link LinkedList}.
+     * The collection process is based on the profiler's traversal function.
      *
-     * @throws IllegalStateException if the profiler is already started.
-     * @implSpec Implementations must reset the profiler's internal state to its initial unstarted state with {@link #reset()}.
+     * @param profiler the {@link IProfiler} instance used to traverse the profiling structure
+     *                 and collect the nodes; must not be {@code null}.
+     * @return a {@link LinkedList} containing all {@link ProfilerNode} instances.
+     */
+    @NotNull
+    static LinkedList<ProfilerNode> listNodes(@NotNull IProfiler profiler) {
+        LinkedList<ProfilerNode> nodes = new LinkedList<>();
+        profiler.walk(nodes::add);
+        return nodes;
+    }
+
+    /**
+     * Starts the profiling session for the profiler. This method initializes the
+     * root profiling entry and clears any existing state in the profiler.
+     * <p>
+     * If the profiler has already been started, calling this method will throw
+     * an {@link IllegalStateException}.
+     *
+     * @throws IllegalStateException if the profiler session is already started.
      */
     void start();
 
     /**
-     * Stops the current profiling session.
+     * Stops the current profiling session by popping the current (root) profiling entry from the stack.
+     * If the current entry is not fully popped or there is a mismatch in the push/pop operations,
+     * an exception is thrown.
      *
-     * @return the root {@link ProfileEntry}.
-     * @throws IllegalStateException if the profiler is not started, or if there are
-     *                               unpopped entries (except for the root) when attempting to stop.
-     * @implSpec Implementations must require that all pushed entries have been popped (except for the root) at
-     * the time of stopping, and this method must return the root {@link ProfileEntry}.
+     * @return the {@link ProfilerNode} that was stopped and removed from the stack.
+     * @throws IllegalStateException if the profiler session ends before all paths are fully popped.
      */
-    @NotNull
-    ProfileEntry stop();
+    ProfilerNode stop();
 
     /**
-     * Pushes a {@link ProfileEntry} with the given id to the stack.
+     * Pushes a new profiling entry onto the stack. If the profiler is not started and
+     * autoStart is enabled in the configuration, the profiler will be started automatically.
      *
-     * @param id a string identifier for the new entry. Must not be {@code null}, and must
-     *           not contain the configured {@linkplain Config#pathSeparator() path separator}.
-     * @throws IllegalStateException    if the profiler is not started.
-     * @throws IllegalArgumentException if the given {@code id} is {@code null} or contains the configured
-     *                                  {@linkplain Config#pathSeparator() path separator}.
-     */
-    void push(@NotNull String id);
-
-    /**
-     * Pops the current {@link ProfileEntry} from the stack.
-     *
-     * @return the popped {@link ProfileEntry}.
-     * @throws IllegalStateException if the profiler is not started OR the stack is empty.
+     * @param id the identifier for the new profiling entry; must not be blank or contain
+     *           the path separator defined in the profiler configuration.
+     * @return the {@link ProfilerNode} representing the newly created and started profiling entry.
+     * @throws IllegalStateException    if the profiler is not started and cannot be started automatically,
+     *                                  or if the maximum path depth is exceeded.
+     * @throws IllegalArgumentException if the provided ID is invalid or violates constraints.
+     * @implSpec Implementations must validate the provided ID to ensure it is not blank and does not contain
+     * the path separator defined in the profiler configuration.
      */
     @NotNull
-    ProfileEntry pop();
+    ProfilerNode push(@NotNull String id);
 
     /**
-     * Pops the current {@link ProfileEntry} from the stack and pushes a new one with the given id.
+     * Pops the current profiling entry from the stack, marking it as stopped,
+     * and sets the parent entry as the new current entry (without starting it).
      *
-     * @param id the id to push to.
-     * @return the popped {@link ProfileEntry}.
-     * @throws IllegalStateException    if the profiler is not started.
-     * @throws IllegalArgumentException if the given {@code id} contains the configured
-     *                                  {@linkplain Config#pathSeparator() path separator}.
-     * @see #push(String)
-     * @see #pop()
+     * @return the {@link ProfilerNode} that was popped and stopped, or {@code null} if no entry was active.
+     * @throws IllegalStateException if the profiler has already been fully popped or has not been started.
+     */
+    ProfilerNode pop();
+
+    /**
+     * Swaps the current profiling entry by popping the current entry from the stack,
+     * then pushing a new profiling entry with the specified identifier.
+     *
+     * @param id the identifier for the new profiling entry; must not be blank or contain
+     *           the path separator defined in the profiler configuration.
+     * @return the {@link ProfilerNode} representing the newly created and started profiling entry.
+     * @implNote Implementations may (and are encouraged to) delegate state and ID validation
+     * to {@link #pop()} and {@link #push(String)} to avoid redundant checks.
      */
     @NotNull
-    default ProfileEntry swap(@NotNull String id) {
-        final ProfileEntry popped = pop();
-        push(id);
-        return popped;
+    default ProfilerNode swap(@NotNull String id) {
+        pop();
+        return push(id);
     }
 
     /**
-     * Swaps the top of the stack for a new entry, or simply pushes if the current top of the stack is root.
-     * <p>
-     * More formally, if {@code depth > 1} this method swaps the stack, otherwise it pushes
-     * without popping.
+     * Swaps the current profiling entry by popping the current entry from the stack, then
+     * pushing a new profiling entry with the specified identifier. If the current entry is
+     * root (e.g., the profiler has not been pushed to since the initial {@link #start()}
+     * call), it pushes a new profiling entry for the specified ID instead.
      *
-     * @param id a string identifier for the new entry. Must not be {@code null}, and must
-     *           not contain the configured {@linkplain Config#pathSeparator() path separator}.
-     * @return the popped {@link ProfileEntry} if {@code depth > 1}, otherwise {@code null}.
-     * @throws IllegalStateException    if the profiler is not started.
-     * @throws IllegalArgumentException if the given {@code id} is {@code null} or contains the configured
-     *                                  {@linkplain Config#pathSeparator() path separator}.
-     * @see #push(String)
-     * @see #swap(String)
+     * @param id the identifier for the new profiling entry; must not be blank or contain
+     *           the path separator defined in the profiler configuration.
+     * @return the {@link ProfilerNode} representing the newly created or swapped profiling entry.
+     * @throws IllegalArgumentException if the provided ID is invalid or violates constraints.
+     * @throws IllegalStateException    if the profiler has not been started and cannot automatically start.
      */
-    @Nullable
-    default ProfileEntry swapIf(@NotNull String id) {
-        if (getDepth() <= 1) {
-            push(id);
-            return null;
+    @NotNull
+    default ProfilerNode swapIf(@NotNull String id) {
+        ProfilerNode currentEntry = currentEntry();
+        if (currentEntry == null || currentEntry.parent() == null) {
+            return push(id);
         }
         return swap(id);
     }
 
     /**
-     * Retrieves the top {@link ProfileEntry} from the stack without removing it.
+     * Retrieves the root entry of the profiling structure.
+     * The root entry will only be {@code null} if the profiler has never been started.
      *
-     * @return the top {@link ProfileEntry} on the stack, or {@code null} if the stack is empty.
+     * @return the root {@link ProfilerNode} if it exists, or {@code null} if the profiler has never been started.
      */
-    @Nullable
-    ProfileEntry getCurrentEntry();
+    ProfilerNode root();
 
     /**
-     * Retrieves an unmodifiable view of the entries in the profiler's map.
+     * Retrieves the current profiling entry being tracked.
      *
-     * @return a set of map entries, where each entry represents a key-value pair
-     * in the profiler's map. The set is unmodifiable, ensuring that the
-     * entries cannot be altered.
-     * @since 1.1.0
+     * @return the current {@link ProfilerNode} if available, or {@code null} if there is no active entry.
      */
-    @NotNull
-    @UnmodifiableView
-    Set<Map.Entry<String, ProfileEntry>> getEntries();
+    ProfilerNode currentEntry();
 
     /**
-     * Retrieves the profiler's label.
+     * Retrieves the current configuration used by the profiler.
      *
-     * @return the profiler's label as a non-null string.
-     * @since 1.1.0
+     * @return the {@link Config} instance representing the profiler configuration.
      */
     @NotNull
-    String getLabel();
+    Config config();
 
     /**
-     * Retrieves the timing precision used by the profiler.
+     * Checks if the current profiling session has been started.
      *
-     * @return the {@link TimeUnit} representing the timing precision used for measurements.
-     * @since 1.1.0
-     */
-    @NotNull
-    TimeUnit getTimingPrecision();
-
-    /**
-     * Retrieves the total runtime of the profiler in the
-     * {@linkplain #getTimingPrecision() configured precision} by
-     * getting the total runtime of the root {@link ProfileEntry}.
-     *
-     * @return the total runtime of the profiler in the {@linkplain #getTimingPrecision() configured precision}.
-     * @since 1.1.0
-     */
-    long getTotalRuntime();
-
-    /**
-     * Retrieves the current depth of the profiling stack. This will be {@code 0} if the profiler is not started.
-     *
-     * @return the current stack depth as an integer.
-     */
-    int getDepth();
-
-    /**
-     * Checks if the profiler is currently started.
-     *
-     * @return {@code true} if the profiler is started, {@code false} otherwise.
-     * @since 3.0.0
+     * @return {@code true} if the profiling session has been started,
+     * otherwise {@code false}.
      */
     boolean isStarted();
 
     /**
-     * Checks if the profiler is configured to automatically start.
+     * Returns the label of this profiler. The label is a non-null, non-blank string that
+     * identifies the profiler instance.
      *
-     * @return {@code true} if the profiler is configured to start automatically, {@code false} otherwise.
-     * @since 3.0.0
+     * @return the label associated with this profiler.
      */
-    boolean canAutoStart();
+    @NotNull
+    String label();
+
+    /**
+     * Walks through the profiling tree starting from the root node and applies the given
+     * {@link Consumer} action to each {@link ProfilerNode}.
+     *
+     * @param consumer the {@link Consumer} that defines the action to be applied to each
+     *                 {@link ProfilerNode}; must not be {@code null}.
+     * @throws IllegalStateException if the root node is {@code null}, which indicates the
+     *                               profiler has not been run.
+     * @see #walk(ProfilerNode, Consumer)
+     */
+    default void walk(@NotNull Consumer<ProfilerNode> consumer) {
+        final ProfilerNode root = root();
+        if (root == null) {
+            throw new IllegalStateException("Cannot walk profiler without root node. You are likely seeing this exception because the profiler has never been run.");
+        }
+        walk(root, consumer);
+    }
+
+    /**
+     * Recursively traverses a tree of {@link ProfilerNode} objects and applies a specified {@link Consumer}
+     * action to each node in a depth-first manner.
+     *
+     * @param node     the root {@link ProfilerNode} to start the traversal from; must not be {@code null}.
+     * @param consumer the {@link Consumer} that defines the action to be applied to each {@link ProfilerNode};
+     *                 must not be {@code null}.
+     */
+    default void walk(@NotNull ProfilerNode node, @NotNull Consumer<ProfilerNode> consumer) {
+        consumer.accept(node);
+        for (ProfilerNode child : node.children()) {
+            walk(child, consumer);
+        }
+    }
+
+    /**
+     * Validates the provided ID by ensuring it is not blank and does not contain
+     * the path separator defined in the profiler configuration.
+     *
+     * @param id the ID to validate; must not be blank and cannot contain the path separator.
+     * @throws IllegalArgumentException if the ID is blank or contains the path separator.
+     * @see #config()
+     */
+    default void checkId(@NotNull String id) {
+        if (id.isBlank()) {
+            throw new IllegalArgumentException("Invalid path id: '" + id + "'. Cannot be blank!");
+        }
+        final String pathSeparator = config().pathSeparator();
+        if (id.contains(pathSeparator)) {
+            throw new IllegalArgumentException("Invalid path id: '" + id + "'. Cannot contain path separator '" + pathSeparator.translateEscapes() + "'!");
+        }
+    }
+
+    /**
+     * Validates that the profiler has been started.
+     *
+     * @throws IllegalStateException if the profiler has not been started.
+     */
+    default void checkStarted() {
+        if (!isStarted()) {
+            throw new IllegalStateException("Profiler not started!");
+        }
+    }
 }

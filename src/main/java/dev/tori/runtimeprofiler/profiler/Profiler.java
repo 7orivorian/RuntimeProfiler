@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 7orivorian.
+ * Copyright (c) 2025 7orivorian.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,162 +22,100 @@
 package dev.tori.runtimeprofiler.profiler;
 
 import dev.tori.runtimeprofiler.config.Config;
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Standard implementation of {@link IProfiler}.
+ * The {@link Profiler} class is an implementation of the {@link IProfiler} interface,
+ * responsible for managing and tracking profiling sessions. It maintains an internal hierarchy
+ * of {@link ProfilerNode} instances representing profiling paths and their respective entries.
+ * This class provides methods for starting, stopping, and navigating the profiling structure.
  *
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
- * @since 1.0.0
+ * @see IProfiler
+ * @see ProfilerNode
+ * @since 3.0.0
  */
 public class Profiler implements IProfiler {
 
-    private static final ProfileEntry BLANK_ENTRY = new ProfileEntry("", "", 0, TimeUnit.NANOSECONDS);
-
-    private final @NotNull String label;
-    private final @NotNull LinkedList<String> stack;
     /**
-     * A map storing profiler entries, where each key is the full path of
-     * associated {@link ProfileEntry} value.
-     * The entries are maintained in the order in which they were inserted.
-     * This map is used internally by the profiler to manage and organize
+     * The label for this profiler. This is a non-null, non-blank string that
+     * identifies the profiler instance.
+     * <p>
+     * Profiler labels are not necessarily required to be unique, but making them
+     * such is recommended for usability as generated reports often use them in
+     * file names, etc.
+     */
+    protected final @NotNull String label;
+    /**
+     * Immutable configuration settings which determine the
+     * behavior and operational parameters of the profiler.
+     */
+    protected final @NotNull Config config;
+    /**
+     * A mapping of profiling paths to their associated {@link ProfilerNode} objects.
+     * This map is used internally to manage and lookup profiling entries
+     * based on their paths.
+     * <p>
+     * The keys in this map represent the unique path strings for each profiling entry,
+     * while the values are the corresponding {@link ProfilerNode} instances that store
      * profiling data.
-     *
-     * <ul>
-     *   <li>Key: A unique, non-null string representing the full path of the associated {@link ProfileEntry}.</li>
-     *   <li>Value: A {@link ProfileEntry} representing the profiling data associated with the key.</li>
-     * </ul>
-     * <p>
-     * This field is guaranteed to be non-null and uses a {@link LinkedHashMap}
-     * implementation to ensure insertion order is preserved.
-     *
-     * @see ProfileEntry
-     * @see LinkedHashMap
      */
-    private final @NotNull LinkedHashMap<String, ProfileEntry> map;
-    private final int maxDepth;
-    /**
-     * Indicates whether the profiler should automatically start when it is pushed to.
-     *
-     * @see #push(String)
-     */
-    private final boolean autoStart;
-    /**
-     * Specifies the timing precision of the {@code Profiler}.
-     * <p>
-     * The value is represented as a {@link TimeUnit}, which determines the unit of time
-     * used for measuring and reporting execution durations within the profiler.
-     * <p>
-     * Must not be {@code null}.
-     *
-     * @since 3.0.0
-     */
-    private final @NotNull TimeUnit precision;
-
-    private boolean started;
-    private int depth;
-    private @Nullable ProfileEntry currentEntry;
+    protected final @NotNull Map<String, ProfilerNode> lookup;
 
     /**
-     * Constructs a new profiler with the given {@code label}.
+     * Represents the root entry node of the profiling structure within the {@link Profiler}.
      * <p>
-     * {@code precision}, {@code maxDepth}, and {@code autoStart} are set to the configured default values.
-     *
-     * @param label A string identifier for this profiler. Must not be {@code null}.
-     * @throws IllegalArgumentException if {@code maxDepth} is less than or equal to zero.
-     * @throws NullPointerException     if {@code label} is {@code null}.
+     * This variable is nullable, as the root entry may not yet be initialized until a
+     * profiling session is started.
      */
-    public Profiler(String label) {
-        this(label, Config.timingPrecision(), Config.maxDepth());
+    protected ProfilerNode root;
+    /**
+     * Represents the current node being actively profiled in the {@link Profiler}.
+     * <p>
+     * This variable holds a reference to the active {@link ProfilerNode} in the profiling stack.
+     * It tracks the current state of profiling, allowing operations such as pushing, popping,
+     * and accessing the current profiling entry.
+     * <p>
+     * The {@code current} field may be {@code null} if no profiling session is active
+     * or if all profiling entries have been popped.
+     */
+    protected ProfilerNode current;
+
+    /**
+     * Constructs a new {@link Profiler} instance using the global configuration.
+     * <p>
+     * This constructor delegates to {@link Profiler#Profiler(String, Config)}
+     * with the default global configuration.
+     *
+     * @param label the label for this profiler; must not be blank or {@code null}.
+     */
+    @Contract(pure = true)
+    public Profiler(@NotNull String label) {
+        this(label, Config.GLOBAL);
     }
 
     /**
-     * Constructs a new profiler with the given {@code label} and {@code autoStart}.
-     * <p>
-     * {@code precision} and {@code maxDepth} are set to the configured default values.
+     * Constructs a new {@link Profiler} instance using the specified configuration.
      *
-     * @param label     A string identifier for this profiler. Must not be {@code null}.
-     * @param autoStart Indicates whether the profiler should automatically start when pushed to.
-     * @throws IllegalArgumentException if {@code maxDepth} is less than or equal to zero.
-     * @throws NullPointerException     if {@code label} is {@code null}.
+     * @param label  the label for this profiler; must not be blank or {@code null}.
+     * @param config the configuration settings for the profiler; must not be {@code null}.
      */
-    public Profiler(String label, boolean autoStart) {
-        this(label, Config.timingPrecision(), Config.maxDepth(), autoStart);
-    }
-
-    /**
-     * Constructs a new profiler with the given {@code label} and {@linkplain TimeUnit time unit}.
-     * <p>
-     * {@code maxDepth} and {@code autoStart} are set to the configured default values.
-     *
-     * @param label     A string identifier for this profiler. Must not be {@code null}.
-     * @param precision The timing {@linkplain TimeUnit precision} for this profiler
-     * @throws IllegalArgumentException if {@code maxDepth} is less than or equal to zero.
-     * @throws NullPointerException     if {@code label} is {@code null}.
-     */
-    public Profiler(String label, TimeUnit precision) {
-        this(label, precision, Config.maxDepth());
-    }
-
-    /**
-     * Constructs a new profiler with the given {@code label} and {@linkplain TimeUnit time unit}.
-     * <p>
-     * {@code autoStart} is set to the configured default value.
-     *
-     * @param label     A string identifier for this profiler. Must not be {@code null}.
-     * @param precision The timing {@linkplain TimeUnit precision} for this profiler.
-     * @param maxDepth  The maximum depth of the profiling path. Must be in range {@code [1, Integer.MAX_VALUE]}.
-     * @throws IllegalArgumentException if {@code maxDepth} is less than or equal to zero.
-     * @throws NullPointerException     if {@code label} or {@code precision} is {@code null}.
-     * @since 1.2.0
-     */
-    public Profiler(String label, TimeUnit precision, int maxDepth) {
-        this(label, precision, maxDepth, Config.autoStart());
-    }
-
-    /**
-     * Constructs a new {@code Profiler} with the specified parameters.
-     *
-     * @param label     A string identifier for this profiler. Must not be {@code null}.
-     * @param precision The {@link TimeUnit} used to determine the timing precision for this profiler. Must not be {@code null}.
-     * @param maxDepth  The maximum depth of the profiling path. Must be in range {@code [1, Integer.MAX_VALUE]}.
-     * @param autoStart Indicates whether the profiler should automatically start when pushed to.
-     * @throws IllegalArgumentException if {@code maxDepth} is less than or equal to zero.
-     * @throws NullPointerException     if {@code label} or {@code precision} is {@code null}.
-     */
-    public Profiler(@NotNull String label, @NotNull TimeUnit precision, @Range(from = 1, to = Integer.MAX_VALUE) int maxDepth, boolean autoStart) {
-        this.label = label;
-        this.precision = precision;
-        this.maxDepth = maxDepth;
-        this.autoStart = autoStart;
-
-        this.stack = new LinkedList<>();
-        this.map = new LinkedHashMap<>();
-
-        this.started = false;
-
-        this.reset();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalStateException {@inheritDoc}
-     */
-    @Override
-    public void reset() {
-        if (isStarted()) {
-            throw new IllegalStateException("Cannot reset profiler while it is started.");
+    @Contract(pure = true)
+    public Profiler(@NotNull String label, @NotNull Config config) {
+        if (label.isBlank()) {
+            throw new IllegalArgumentException("Profiler label cannot be blank.");
         }
+        this.label = label;
+        this.config = config;
+        this.lookup = new HashMap<>();
 
-        stack.clear();
-        map.clear();
-        depth = 0;
-        currentEntry = null;
+        this.root = null;
+        this.current = null;
     }
 
     /**
@@ -188,15 +126,17 @@ public class Profiler implements IProfiler {
     @Override
     public void start() {
         if (isStarted()) {
-            throw new IllegalStateException("Profiler session already started");
+            throw new IllegalStateException("Profiler already started.");
         }
 
-        // Reset state
-        reset();
+        lookup.clear();
+        current = null;
+        root = null;
 
-        // Start session
-        started = true;
-        push(Config.rootId());
+        current = root = new ProfilerNode(config.rootId(), config.rootId(), null, config.timingPrecision());
+        lookup.put(root.path(), root);
+
+        root.start();
     }
 
     /**
@@ -205,60 +145,50 @@ public class Profiler implements IProfiler {
      * @return {@inheritDoc}
      * @throws IllegalStateException {@inheritDoc}
      */
-    @NotNull
     @Override
-    public ProfileEntry stop() {
-        checkStarted();
-
-        if (depth > 1) {
-            if (currentEntry == null) {
-                throw new IllegalStateException("Profiler session ended before path was fully popped. Mismatched push/pop?");
-            }
-            throw new IllegalStateException("Profiler session ended before path was fully popped (remainder %s). Mismatched push/pop?".formatted(currentEntry.path()));
+    public ProfilerNode stop() {
+        if (current != null && current.parent() != null) {
+            throw new IllegalStateException("Profiler session ended before path was fully popped. Mismatched push/pop? Remainger: %s".formatted(current.path()));
         }
-
-        final ProfileEntry data = pop();
-
-        started = false;
-        return data;
+        return pop();
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * If {@linkplain #autoStart} is enabled and this profiler is not
-     * {@linkplain #isStarted() started}, this method will start the
-     * profiler before pushing.
+     * The method checks and validates the provided ID and updates the current entry path
+     * and hierarchy. If the maximum allowed path depth is exceeded, an exception is thrown.
      *
      * @param id {@inheritDoc}
+     * @return the {@link ProfilerNode} {@inheritDoc}
      * @throws IllegalStateException    {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @NotNull
     @Override
-    public void push(@NotNull String id) {
-        if (!isStarted() && autoStart) {
+    public ProfilerNode push(@NotNull String id) {
+        if (config.autoStart() && !isStarted()) {
             start();
         }
 
         checkStarted();
         checkId(id);
 
-        if (++depth > maxDepth) {
-            throw new IllegalStateException("Maximum path depth of %s exceeded".formatted(maxDepth));
+        // current will never be null here, as checkStarted() would have thrown an exception if it was.
+        String path = current.path() + config.pathSeparator() + id;
+
+        // Check if this path has already been visited, if so, assign the
+        // existing node as the current entry, otherwise create a new node
+        // and assign it as the current entry.
+        current = lookup.computeIfAbsent(path, p -> new ProfilerNode(id, p, current, config.timingPrecision()));
+
+        // Check if the maximum path depth has been exceeded.
+        if (current.depth() > config.maxDepth()) {
+            throw new IllegalStateException("Maximum path depth of %s exceeded".formatted(config.maxDepth()));
         }
 
-        String path;
-        if (currentEntry == null) {
-            path = id;
-        } else {
-            path = currentEntry.path() + Config.pathSeparator() + id;
-        }
-        currentEntry = new ProfileEntry(path, id, depth, precision);
-
-        final ProfileEntry entry = currentEntry;
-
-        stack.push(path);
-        map.computeIfAbsent(path, key -> entry).start();
+        // Start profiling the current entry.
+        return current.start();
     }
 
     /**
@@ -269,69 +199,36 @@ public class Profiler implements IProfiler {
      */
     @NotNull
     @Override
-    public ProfileEntry pop() {
+    public ProfilerNode pop() {
         checkStarted();
 
-        if (currentEntry == null) {
+        if (current == null) {
             throw new IllegalStateException("Profiler already fully popped. Mismatched push/pop?");
         }
 
-        final ProfileEntry popped = currentEntry.stop();
-
-        stack.pop();
-
-        if (stack.isEmpty()) {
-            currentEntry = null;
-        } else {
-            currentEntry = map.get(stack.getFirst());
-        }
-
-        depth--;
-
+        final ProfilerNode popped = current.stop();
+        current = current.parent();
         return popped;
     }
 
-    @Nullable
+    /**
+     * {@inheritDoc}
+     *
+     * @return {@inheritDoc}
+     */
     @Override
-    public ProfileEntry getCurrentEntry() {
-        return currentEntry;
+    public ProfilerNode root() {
+        return root;
     }
 
     /**
      * {@inheritDoc}
      *
      * @return {@inheritDoc}
-     * @since 1.1.0
      */
-    @NotNull
-    @UnmodifiableView
     @Override
-    public Set<Map.Entry<String, ProfileEntry>> getEntries() {
-        return Collections.unmodifiableSet(map.entrySet());
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return {@inheritDoc}
-     * @since 1.1.0
-     */
-    @NotNull
-    @Override
-    public String getLabel() {
-        return label;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return {@inheritDoc}
-     * @since 1.1.0
-     */
-    @NotNull
-    @Override
-    public TimeUnit getTimingPrecision() {
-        return precision;
+    public ProfilerNode currentEntry() {
+        return current;
     }
 
     /**
@@ -339,65 +236,30 @@ public class Profiler implements IProfiler {
      *
      * @return {@inheritDoc}
      */
+    @NotNull
     @Override
-    public long getTotalRuntime() {
-        return map.getOrDefault(Config.rootId(), BLANK_ENTRY).totalTime();
+    public Config config() {
+        return config;
     }
 
     /**
      * {@inheritDoc}
      *
      * @return {@inheritDoc}
-     * @since 1.2.0
-     */
-    @Override
-    public int getDepth() {
-        return depth;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return {@inheritDoc}
-     * @since 2.1.0
      */
     @Override
     public boolean isStarted() {
-        return started;
+        return current != null;
     }
 
     /**
      * {@inheritDoc}
      *
      * @return {@inheritDoc}
-     * @since 3.0.0
      */
+    @NotNull
     @Override
-    public boolean canAutoStart() {
-        return autoStart;
-    }
-
-    /**
-     * @param id the id to check
-     * @throws IllegalArgumentException if the given {@code id} contains the
-     *                                  {@linkplain Config#pathSeparator() path separator}.
-     */
-    @ApiStatus.Internal
-    private void checkId(@NotNull String id) {
-        final String pathSeparator = Config.pathSeparator();
-        if (id.contains(pathSeparator)) {
-            throw new IllegalArgumentException("Invalid path id: '" + id + "'. Cannot contain path separator '" + pathSeparator.translateEscapes() + "'!");
-        }
-    }
-
-    /**
-     * @throws IllegalStateException if this profiler is not {@linkplain #isStarted() started}.
-     */
-    @Contract(pure = true)
-    @ApiStatus.Internal
-    private void checkStarted() {
-        if (!isStarted()) {
-            throw new IllegalStateException("Profiler not started");
-        }
+    public String label() {
+        return label;
     }
 }

@@ -21,14 +21,13 @@
 
 package profiler;
 
+import dev.tori.runtimeprofiler.config.Config;
 import dev.tori.runtimeprofiler.profiler.IProfiler;
 import dev.tori.runtimeprofiler.profiler.Profiler;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
@@ -45,8 +44,7 @@ public class ProfilerTest {
     @NotNull
     @Contract("_, _ -> new")
     static IProfiler createProfiler(int maxDepth, boolean autoStart) {
-        // Specify every parameter explicitly to avoid accidental changes.
-        return new Profiler("Test", TimeUnit.NANOSECONDS, maxDepth, autoStart);
+        return new Profiler("Test", Config.of(Config.GLOBAL).maxDepth(maxDepth).autoStart(autoStart));
     }
 
     @Test
@@ -88,7 +86,7 @@ public class ProfilerTest {
     void testAutoStartPush() {
         IProfiler profiler = createProfiler(true);
 
-        Assertions.assertTrue(profiler.canAutoStart());
+        Assertions.assertTrue(profiler.config().autoStart());
 
         Assertions.assertDoesNotThrow(() -> profiler.push("test"));
     }
@@ -97,7 +95,7 @@ public class ProfilerTest {
     void testAutoStartSwap() {
         IProfiler profiler = createProfiler(true);
 
-        Assertions.assertTrue(profiler.canAutoStart());
+        Assertions.assertTrue(profiler.config().autoStart());
 
         Assertions.assertDoesNotThrow(() -> profiler.swapIf("test"));
     }
@@ -106,49 +104,41 @@ public class ProfilerTest {
 
     @Test
     void testMaxDepth() {
-        IProfiler profiler = createProfiler(3, false);
+        IProfiler profiler = createProfiler(1, false);
 
-        Assertions.assertThrows(IllegalStateException.class, () -> profiler.push("test"));
+        Assertions.assertDoesNotThrow(profiler::start); // Depth 0
+        Assertions.assertDoesNotThrow(() -> profiler.push("test_1")); // Depth 1
+        Assertions.assertThrows(IllegalStateException.class, () -> profiler.push("test_2")); // Depth 2, exceeding max depth
     }
 
     @Test
-    void testDepthGetter() {
+    void testEntryDepth() {
         IProfiler profiler = createProfiler(false);
 
-        Assertions.assertEquals(0, profiler.getDepth());
+        Assertions.assertNull(profiler.currentEntry());
 
         profiler.start();
-        Assertions.assertEquals(1, profiler.getDepth());
+        Assertions.assertEquals(0, profiler.currentEntry().depth());
 
         profiler.push("test");
-        Assertions.assertEquals(2, profiler.getDepth());
+        Assertions.assertEquals(1, profiler.currentEntry().depth());
 
         profiler.pop();
-        Assertions.assertEquals(1, profiler.getDepth());
+        Assertions.assertEquals(0, profiler.currentEntry().depth());
 
         profiler.stop();
-        Assertions.assertEquals(0, profiler.getDepth());
+        Assertions.assertNull(profiler.currentEntry());
     }
 
-    /* Basic Getters */
+    /* Other */
 
     @Test
     void testIsStarted() {
-        IProfiler profiler = createProfiler(true);
+        IProfiler profiler = createProfiler(false);
 
         Assertions.assertFalse(profiler.isStarted());
 
         profiler.start();
         Assertions.assertTrue(profiler.isStarted());
-    }
-
-    @Test
-    void testRuntimeGetter() {
-        IProfiler profiler = createProfiler(false);
-
-        // The runtime of a profiler that has never been started should be 0,
-        // and attempts to retrieve the runtime should not throw an exception.
-        Assertions.assertDoesNotThrow(profiler::getTotalRuntime);
-        Assertions.assertEquals(0, profiler.getTotalRuntime());
     }
 }
