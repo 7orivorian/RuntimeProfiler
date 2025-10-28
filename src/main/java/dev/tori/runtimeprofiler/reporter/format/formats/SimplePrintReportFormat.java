@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import static dev.tori.runtimeprofiler.reporter.IReporter.dateNow;
 
 /**
- * The {@link PrintReportFormat} class represents a console-based report format specifically for
+ * The {@link SimplePrintReportFormat} class represents a console-based report format specifically for
  * generating profiler reports suitable for console output.
  * <p>
  * The report includes details such as visits, average, minimum and maximum durations,
@@ -41,7 +41,7 @@ import static dev.tori.runtimeprofiler.reporter.IReporter.dateNow;
  * empty profiler instance without a root node.
  * @since 3.0.0
  */
-public class PrintReportFormat implements ConsoleReportFormat {
+public class SimplePrintReportFormat implements ConsoleReportFormat {
 
     @NotNull
     @Override

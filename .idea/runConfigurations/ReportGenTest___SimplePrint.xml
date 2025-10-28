@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="ReportGenTest - Print" type="Application" factoryName="Application">
+  <configuration default="false" name="ReportGenTest - SimplePrint" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="manual_tests.ReportGenerationTest" />
     <module name="runtimeprofiler" />
-    <option name="VM_PARAMETERS" value="-Drtp.format=print" />
+    <option name="VM_PARAMETERS" value="-Drtp.format=simple_print" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="manual_tests.ReportGenerationTest" />

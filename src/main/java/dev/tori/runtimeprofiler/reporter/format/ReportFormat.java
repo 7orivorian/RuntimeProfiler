@@ -51,12 +51,12 @@ public interface ReportFormat {
     ReportFormat JSON = new JsonReportFormat();
 
     /* Console */
-    ReportFormat PRINT = new PrintReportFormat();
+    ReportFormat SIMPLE_PRINT = new SimplePrintReportFormat();
 
     /* Arrays for easy iteration */
     ReportFormat[] FILE_FORMATS = new ReportFormat[]{HTML, MD, CSV, JSON};
-    ReportFormat[] CONSOLE_FORMATS = new ReportFormat[]{PRINT};
-    ReportFormat[] ALL_FORMATS = new ReportFormat[]{HTML, MD, CSV, JSON, PRINT};
+    ReportFormat[] CONSOLE_FORMATS = new ReportFormat[]{SIMPLE_PRINT};
+    ReportFormat[] ALL_FORMATS = new ReportFormat[]{HTML, MD, CSV, JSON, SIMPLE_PRINT};
 
     /**
      * Converts the provided string into an appropriate {@code ReportFormat} instance.
@@ -73,7 +73,7 @@ public interface ReportFormat {
             case "md", "markdown" -> MD;
             case "csv" -> CSV;
             case "json" -> JSON;
-            case "print" -> PRINT;
+            case "simple_print" -> SIMPLE_PRINT;
             default -> throw new IllegalArgumentException("Invalid ReportFormat: '" + string + "'!");
         };
     }

@@ -62,6 +62,6 @@ public class ManualProfilerTest {
 
         System.out.println(profiler.root().sumTime());
 
-        Reporter.write(profiler).to(System.out).format(ReportFormat.PRINT).report();
+        Reporter.write(profiler).to(System.out).format(ReportFormat.SIMPLE_PRINT).report();
     }
 }
