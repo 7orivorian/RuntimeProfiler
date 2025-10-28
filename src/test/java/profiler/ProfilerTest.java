@@ -44,7 +44,8 @@ public class ProfilerTest {
     @NotNull
     @Contract("_, _ -> new")
     static IProfiler createProfiler(int maxDepth, boolean autoStart) {
-        return new Profiler("Test", Config.of(Config.GLOBAL).maxDepth(maxDepth).autoStart(autoStart));
+        Config config = Config.of(Config.GLOBAL).maxDepth(maxDepth).autoStart(autoStart);
+        return new Profiler("Test", config);
     }
 
     @Test
