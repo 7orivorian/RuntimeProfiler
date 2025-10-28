@@ -30,7 +30,15 @@ import org.jetbrains.annotations.NotNull;
 import static dev.tori.runtimeprofiler.reporter.IReporter.dateNow;
 
 /**
+ * The {@link PrintReportFormat} class represents a console-based report format specifically for
+ * generating profiler reports suitable for console output.
+ * <p>
+ * The report includes details such as visits, average, minimum and maximum durations,
+ * and distribution percentages relative to the parent node and the entire session.
+ *
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
+ * @implNote An {@code IllegalStateException} will be thrown when attempting to stringify an
+ * empty profiler instance without a root node.
  * @since 3.0.0
  */
 public class PrintReportFormat implements ConsoleReportFormat {
