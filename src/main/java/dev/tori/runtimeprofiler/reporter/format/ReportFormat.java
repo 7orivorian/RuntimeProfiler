@@ -24,10 +24,7 @@ package dev.tori.runtimeprofiler.reporter.format;
 import dev.tori.runtimeprofiler.profiler.IProfiler;
 import dev.tori.runtimeprofiler.reporter.IReporter;
 import dev.tori.runtimeprofiler.reporter.ReportType;
-import dev.tori.runtimeprofiler.reporter.format.formats.CSVReportFormat;
-import dev.tori.runtimeprofiler.reporter.format.formats.HTMLReportFormat;
-import dev.tori.runtimeprofiler.reporter.format.formats.MarkdownReportFormat;
-import dev.tori.runtimeprofiler.reporter.format.formats.PrintReportFormat;
+import dev.tori.runtimeprofiler.reporter.format.formats.*;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -51,14 +48,15 @@ public interface ReportFormat {
     ReportFormat HTML = new HTMLReportFormat();
     ReportFormat MD = new MarkdownReportFormat();
     ReportFormat CSV = new CSVReportFormat();
+    ReportFormat JSON = new JsonReportFormat();
 
     /* Console */
     ReportFormat PRINT = new PrintReportFormat();
 
     /* Arrays for easy iteration */
-    ReportFormat[] FILE_FORMATS = new ReportFormat[]{HTML, MD, CSV};
+    ReportFormat[] FILE_FORMATS = new ReportFormat[]{HTML, MD, CSV, JSON};
     ReportFormat[] CONSOLE_FORMATS = new ReportFormat[]{PRINT};
-    ReportFormat[] ALL_FORMATS = new ReportFormat[]{HTML, MD, CSV, PRINT};
+    ReportFormat[] ALL_FORMATS = new ReportFormat[]{HTML, MD, CSV, JSON, PRINT};
 
     /**
      * Converts the provided string into an appropriate {@code ReportFormat} instance.
@@ -74,6 +72,7 @@ public interface ReportFormat {
             case "html" -> HTML;
             case "md", "markdown" -> MD;
             case "csv" -> CSV;
+            case "json" -> JSON;
             case "print" -> PRINT;
             default -> throw new IllegalArgumentException("Invalid ReportFormat: '" + string + "'!");
         };
