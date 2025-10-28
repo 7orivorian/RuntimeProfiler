@@ -23,8 +23,7 @@ package dev.tori.runtimeprofiler.reporter.format.formats;
 
 import dev.tori.runtimeprofiler.profiler.IProfiler;
 import dev.tori.runtimeprofiler.profiler.ProfilerNode;
-import dev.tori.runtimeprofiler.reporter.ReportType;
-import dev.tori.runtimeprofiler.reporter.format.ReportFormat;
+import dev.tori.runtimeprofiler.reporter.format.ConsoleReportFormat;
 import dev.tori.runtimeprofiler.util.Util;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,13 +33,7 @@ import static dev.tori.runtimeprofiler.reporter.IReporter.dateNow;
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
  * @since 3.0.0
  */
-public class PrintReportFormat implements ReportFormat {
-
-    @NotNull
-    @Override
-    public ReportType type() {
-        return ReportType.CONSOLE;
-    }
+public class PrintReportFormat implements ConsoleReportFormat {
 
     @NotNull
     @Override

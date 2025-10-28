@@ -24,8 +24,7 @@ package dev.tori.runtimeprofiler.reporter.format.formats;
 import dev.tori.runtimeprofiler.profiler.IProfiler;
 import dev.tori.runtimeprofiler.profiler.ProfilerNode;
 import dev.tori.runtimeprofiler.reporter.IReporter;
-import dev.tori.runtimeprofiler.reporter.ReportType;
-import dev.tori.runtimeprofiler.reporter.format.ReportFormat;
+import dev.tori.runtimeprofiler.reporter.format.FileReportFormat;
 import dev.tori.runtimeprofiler.util.Util;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +45,7 @@ import java.util.concurrent.TimeUnit;
  * @see MarkdownReportFormat
  * @since 3.0.0
  */
-public abstract class TemplatedFileReportFormat implements ReportFormat {
+public abstract class TemplatedFileReportFormat implements FileReportFormat {
 
     protected final @NotNull String templateLocation;
 
@@ -67,13 +66,6 @@ public abstract class TemplatedFileReportFormat implements ReportFormat {
     protected abstract String header(@NotNull IProfiler profiler);
 
     protected abstract String data(@NotNull ProfilerNode entry, long profilerRuntime);
-
-    @Contract(pure = true)
-    @NotNull
-    @Override
-    public final ReportType type() {
-        return ReportType.FILE;
-    }
 
     @NotNull
     @Override

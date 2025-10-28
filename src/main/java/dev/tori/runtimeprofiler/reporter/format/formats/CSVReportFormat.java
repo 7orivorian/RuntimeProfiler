@@ -25,7 +25,7 @@ import com.opencsv.CSVWriterBuilder;
 import com.opencsv.ICSVWriter;
 import dev.tori.runtimeprofiler.profiler.IProfiler;
 import dev.tori.runtimeprofiler.profiler.ProfilerNode;
-import dev.tori.runtimeprofiler.reporter.ReportType;
+import dev.tori.runtimeprofiler.reporter.format.FileReportFormat;
 import dev.tori.runtimeprofiler.reporter.format.ReportFormat;
 import dev.tori.runtimeprofiler.util.Util;
 import org.jetbrains.annotations.Contract;
@@ -59,7 +59,7 @@ import java.io.StringWriter;
  * empty profiler instance without a root node.
  * @since 3.0.0
  */
-public class CSVReportFormat implements ReportFormat {
+public class CSVReportFormat implements FileReportFormat {
 
     protected final @NotNull Character separator;
     protected final @NotNull Character quotechar;
@@ -75,12 +75,6 @@ public class CSVReportFormat implements ReportFormat {
         this.separator = separator;
         this.quotechar = quotechar;
         this.escapechar = escapechar;
-    }
-
-    @NotNull
-    @Override
-    public ReportType type() {
-        return ReportType.FILE;
     }
 
     @NotNull
