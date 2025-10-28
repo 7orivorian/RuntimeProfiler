@@ -74,7 +74,7 @@ public class Main {
 
         profiler.stop();
 
-        Reporter.write(profiler).to(System.out).format(ReportFormat.PRINT).report();
+        Reporter.write(profiler).to(System.out).format(ReportFormat.SIMPLE_PRINT).report();
     }
 }
 ```
