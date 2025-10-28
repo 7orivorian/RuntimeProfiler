@@ -63,18 +63,18 @@ public class Main {
         profiler.push("Section_A");
 
         profiler.push("Sub-Section_1"); // Included in the runtime of Section_A
-        /* Code to be profiled */
+        foo();
         profiler.swap("Sub-Section_2"); // Included in the runtime of Section_A
-        /* Code to be profiled */
+        bar();
         profiler.pop();
 
         profiler.swap("Section_B");
-        /* Code to be profiled */
+        foobar();
         profiler.pop();
 
         profiler.stop();
 
-        OutputWriter.HTML.writeToPath(profiler, new File("<output_dir>").toPath());
+        Reporter.write(profiler).to(System.out).format(ReportFormat.PRINT).report();
     }
 }
 ```
