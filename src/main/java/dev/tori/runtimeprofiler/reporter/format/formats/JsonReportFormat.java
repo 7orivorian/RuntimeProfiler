@@ -27,6 +27,7 @@ import dev.tori.runtimeprofiler.profiler.IProfiler;
 import dev.tori.runtimeprofiler.profiler.ProfilerNode;
 import dev.tori.runtimeprofiler.reporter.IReporter;
 import dev.tori.runtimeprofiler.reporter.format.FileReportFormat;
+import dev.tori.runtimeprofiler.util.Util;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -124,15 +125,31 @@ public class JsonReportFormat implements FileReportFormat {
     }
 
     private static final class ProfilerNodeSerializer implements JsonSerializer<ProfilerNode> {
+
+        private ProfilerNode root = null;
+
         @Override
         public JsonElement serialize(ProfilerNode src, Type typeOfSrc, JsonSerializationContext context) {
+            if (src.depth() == 0) {
+                root = src;
+            }
+
             JsonObject json = new JsonObject();
             json.addProperty("id", src.id());
             json.addProperty("path", src.path());
             json.addProperty("visits", src.visits());
+            json.addProperty("depth", src.depth());
             json.addProperty("sum_time", src.sumTime());
             json.addProperty("min_time", src.minTime());
             json.addProperty("max_time", src.maxTime());
+
+            json.addProperty("percent_of_root", Util.percent(src.sumTime(), root.sumTime()));
+
+            if (src.parent() != null) {
+                json.addProperty("percent_of_parent", Util.percent(src.sumTime(), src.parent().sumTime()));
+            } else {
+                json.addProperty("percent_of_parent", 0);
+            }
 
             JsonArray childrenArr = new JsonArray();
             LinkedHashSet<ProfilerNode> children = src.children();
