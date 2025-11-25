@@ -113,8 +113,8 @@ public interface IReporter {
 
     /**
      * Generates and processes a report based on the current implementation.
-     * The exact behavior of the report generation is determined by the specific implementation
-     * provided by classes implementing this interface.
+     * <p>
+     * The exact behavior of the report generation is determined by the class implementing this interface.
      *
      * @throws IllegalStateException if the reporter is not properly initialized or is in an invalid state.
      * @implSpec Implementations must ensure that the reporter is in a valid state before generating a report. This must include checking if {@link #format()} is {@code null}.
