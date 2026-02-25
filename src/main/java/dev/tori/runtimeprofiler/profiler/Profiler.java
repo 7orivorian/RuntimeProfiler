@@ -24,7 +24,6 @@ package dev.tori.runtimeprofiler.profiler;
 import dev.tori.runtimeprofiler.config.Config;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +35,7 @@ import java.util.Map;
  * This class provides methods for starting, stopping, and navigating the profiling structure.
  *
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
+ * @implNote This class is not thread-safe.
  * @see IProfiler
  * @see ProfilerNode
  * @since 3.0.0
