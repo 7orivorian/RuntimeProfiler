@@ -30,9 +30,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * The {@link ProfilerNode} class represents a node in a profiling hierarchy that tracks
- * the performance data of specific operations or processes. Each node maintains timing information
- * such as total time, maximum time, and minimum time for operations as well as hierarchical
- * relationships with parent and child nodes.
+ * performance data. Each node maintains timing information such as total time, maximum time,
+ * and minimum time for operations as well as hierarchical relationships with parent and child
+ * nodes.
  * <p>
  * A {@link ProfilerNode} is also associated with an identifier and a path that reflects its
  * hierarchical position. Timing is managed using an associated {@link Stopwatch} instance, and
