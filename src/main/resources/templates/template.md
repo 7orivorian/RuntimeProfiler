@@ -1,10 +1,10 @@
-# Profiler — $label
+# Profiler - $label
 
 ### Generated on $date
 
 <table>
     <caption>
-        Timed with $timeunit ($abbrtimeunit) precision
+        Timed in $timeunits ($abbrtimeunit)
     </caption>
     <thead>
     $tableheader

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 7orivorian.
+ * Copyright (c) 2025 7orivorian.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,39 +19,27 @@
  * THE SOFTWARE.
  */
 
-package dev.tori.runtimeprofiler.util;
+package dev.tori.runtimeprofiler.reporter.format;
 
-import dev.tori.runtimeprofiler.write.OutputWriter;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Contract;
-
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
+import dev.tori.runtimeprofiler.reporter.ReportType;
+import org.jetbrains.annotations.NotNull;
 
 /**
+ * The {@link ConsoleReportFormat} interface represents a format for generating and exporting reports to the console.
+ *
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
- * @since 1.1.0
+ * @since 3.0.0
  */
-@ApiStatus.Internal
-public final class IOUtil {
+public interface ConsoleReportFormat extends ReportFormat {
 
-    @Contract(pure = true)
-    private IOUtil() {
-
-    }
-
-    public static String readResourceAsString(String resourcePath) {
-        // Use the class loader to get the resource as an InputStream
-        InputStream inputStream = OutputWriter.class.getClassLoader().getResourceAsStream(resourcePath);
-
-        if (inputStream == null) {
-            throw new IllegalArgumentException("Resource not found: " + resourcePath);
-        }
-
-        // Use Scanner to read the InputStream into a String
-        try (Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8)) {
-            return scanner.useDelimiter("\\A").next();
-        }
+    /**
+     * {@inheritDoc}
+     *
+     * @return {@link ReportType#CONSOLE}
+     */
+    @Override
+    @NotNull
+    default ReportType type() {
+        return ReportType.CONSOLE;
     }
 }

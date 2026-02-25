@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="GenerateFileTest - HTML" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="manual_tests.GenerateFileTest" />
+  <configuration default="false" name="ReportGenTest - HTML" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="manual_tests.ReportGenerationTest" />
     <module name="runtimeprofiler" />
-    <option name="VM_PARAMETERS" value="-Drtp.outputwriter=html" />
+    <option name="VM_PARAMETERS" value="-Drtp.format=html" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="manual_tests.*" />
+        <option name="PATTERN" value="manual_tests.ReportGenerationTest" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

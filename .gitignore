@@ -667,8 +667,8 @@ bh_unicode_properties.cache
 # https://packagecontrol.io/packages/sublime-github
 GitHub.sublime-settings
 
-### Project Specific
-output
-
 ### Wakatime
 .wakatime-project
+
+### Project Specific
+output

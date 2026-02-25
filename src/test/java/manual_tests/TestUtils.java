@@ -21,14 +21,8 @@
 
 package manual_tests;
 
-import dev.tori.runtimeprofiler.IProfiler;
-import dev.tori.runtimeprofiler.Profiler;
-import dev.tori.runtimeprofiler.write.OutputWriter;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.concurrent.TimeUnit;
+import dev.tori.runtimeprofiler.profiler.IProfiler;
+import dev.tori.runtimeprofiler.profiler.Profiler;
 
 /**
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
@@ -36,43 +30,36 @@ import java.util.concurrent.TimeUnit;
  */
 class TestUtils {
 
-    static void write(IProfiler profiler, OutputWriter outputWriter) throws IOException {
-        Path path = new File(System.getProperty("user.dir") + "\\output").toPath();
-        OutputWriter.prepareDir(path);
-        outputWriter.writeToPath(profiler, path);
-    }
-
-    static IProfiler mockProfilerData() {
-        Profiler profiler = new Profiler("TestProfiler", TimeUnit.NANOSECONDS);
+    static IProfiler mockProfiler() {
+        Profiler profiler = new Profiler("TestProfiler");
         profiler.start();
 
         profiler.push("Loop_A");
-        boolean b = false;
-        for (int i = 0; i < 100; i++) {
-            profiler.push("Loop_AA");
-            for (int j = 0; j < 100; j++) {
-                profiler.push("Loop_AB");
-                for (int k = 0; k < 100; k++) {
-                    profiler.push("Flip_A");
-                    b = !b;
-                    profiler.pop();
-                }
-                for (int k = 0; k < 100; k++) {
-                    profiler.push("Flip_B");
-                    b = !b;
-                    profiler.pop();
-                }
+        int b = 0;
+        for (int i = 0; i < 10; i++) {
+            profiler.push("Loop_B");
+            for (int k = 0; k < 10; k++) {
+                profiler.push("Flip_A");
+                b++;
+                profiler.pop();
+            }
+            for (int k = 0; k < 10; k++) {
+                profiler.push("Flip_B");
+                b++;
                 profiler.pop();
             }
             profiler.pop();
         }
-        profiler.swap("Loop_B");
-        for (int i = 0; i < 1000; i++) {
-            b = !b;
+        profiler.swap("Loop_C");
+        for (int i = 0; i < 100; i++) {
+            b++;
         }
         profiler.pop();
 
         profiler.stop();
+
+        System.out.println(b);
+
         return profiler;
     }
 }

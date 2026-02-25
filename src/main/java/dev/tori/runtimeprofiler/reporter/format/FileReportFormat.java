@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 7orivorian.
+ * Copyright (c) 2025 7orivorian.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,37 +19,27 @@
  * THE SOFTWARE.
  */
 
-package dev.tori.runtimeprofiler;
+package dev.tori.runtimeprofiler.reporter.format;
 
-import dev.tori.runtimeprofiler.config.Config;
+import dev.tori.runtimeprofiler.reporter.ReportType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.TimeUnit;
-
 /**
- * A factory class for creating instances of {@link LocData}.
+ * The {@link FileReportFormat} interface represents a format for generating and exporting reports to a file.
  *
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
- * @since 1.0.0
+ * @since 3.0.0
  */
-public record LocDataFactory(@NotNull TimeUnit timeUnit) {
+public interface FileReportFormat extends ReportFormat {
 
     /**
-     * Creates a new instance of {@link LocData} based on the provided path. The path is processed to determine the
-     * location component.
+     * {@inheritDoc}
      *
-     * @param path  the path from which to create the {@link LocData}; must not be null.
-     * @param depth the depth of this {@link LocData}; must be greater than {@code -1}.
-     * @return a new instance of {@link LocData}.
-     * @throws NullPointerException if the path is null.
-     * @since 1.2.0
+     * @return {@link ReportType#FILE}
      */
+    @Override
     @NotNull
-    public LocData create(@NotNull String path, int depth) {
-        int i = path.lastIndexOf(Config.pathSeparator());
-        // loc includes any leading separator to make clear at a glance
-        // that it's a sub-location in the event of duplicate loc names.
-        String loc = (i == -1) ? path : path.substring(i);
-        return new LocData(path, loc, timeUnit, depth);
+    default ReportType type() {
+        return ReportType.FILE;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 7orivorian.
+ * Copyright (c) 2025 7orivorian.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,26 +21,47 @@
 
 package manual_tests;
 
-import dev.tori.runtimeprofiler.write.OutputWriter;
-
-import java.io.IOException;
-
-import static manual_tests.TestUtils.mockProfilerData;
-import static manual_tests.TestUtils.write;
+import dev.tori.runtimeprofiler.profiler.Profiler;
+import dev.tori.runtimeprofiler.reporter.Reporter;
+import dev.tori.runtimeprofiler.reporter.format.ReportFormat;
 
 /**
  * @author <a href="https://github.com/7orivorian">7orivorian</a>
- * @since 1.1.0
+ * @since 3.0.0
  */
-@SuppressWarnings("NonFinalUtilityClass")
-public class GenerateFileTest {
+public class ManualProfilerTest {
 
-    public static void main(String[] args) throws IOException {
-        String property = System.getProperty("rtp.outputwriter");
-        if (property == null) {
-            property = "html";
+    public static void main(String[] args) {
+        Profiler profiler = new Profiler("TestProfiler");
+        profiler.start();
+
+        profiler.push("Loop_A");
+        int b = 0;
+        for (int i = 0; i < 10; i++) {
+            profiler.push("Loop_B");
+            for (int k = 0; k < 10; k++) {
+                profiler.push("Flip_A");
+                b++;
+                profiler.pop();
+            }
+            for (int k = 0; k < 10; k++) {
+                profiler.push("Flip_B");
+                b++;
+                profiler.pop();
+            }
+            profiler.pop();
         }
+        profiler.pop();
+        profiler.push("Loop_C");
+        for (int i = 0; i < 100; i++) {
+            b++;
+        }
+        profiler.pop();
 
-        write(mockProfilerData(), OutputWriter.fromString(property));
+        profiler.stop();
+
+        System.out.println(profiler.root().sumTime());
+
+        Reporter.write(profiler).to(System.out).format(ReportFormat.SIMPLE_PRINT).report();
     }
 }

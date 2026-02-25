@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 7orivorian.
+ * Copyright (c) 2025 7orivorian.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,37 +19,25 @@
  * THE SOFTWARE.
  */
 
-package dev.tori.runtimeprofiler.util;
-
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.concurrent.TimeUnit;
+package dev.tori.runtimeprofiler.reporter;
 
 /**
- * @author <a href="https://github.com/7orivorian">7orivorian</a>
- * @since 1.0.0
+ * The {@link ReportType} enumeration defines the types of report outputs
+ * that can be generated. It is used to specify the destination where the
+ * report will be directed, such as a file, the console, or an undefined state.
+ * <p>
+ * Enum Constants:
+ * <ul>
+ *     <li>{@code FILE}: Represents a report that will be written to a file.</li>
+ *     <li>{@code CONSOLE}: Represents a report that will be printed to the console.</li>
+ *     <li>{@code UNDEFINED}: Represents an undefined or invalid report type.</li>
+ * </ul>
+ * <p>
+ * This enum is utilized by components such as the {@code Reporter} and {@code ReportFormat}
+ * classes to determine the behavior of report generation and output.
  */
-@ApiStatus.Internal
-public final class UnitUtil {
-
-    @Contract(pure = true)
-    private UnitUtil() {
-
-    }
-
-    @NotNull
-    @Contract(pure = true)
-    public static String abbreviate(@NotNull TimeUnit timeUnit) {
-        return switch (timeUnit) {
-            case NANOSECONDS -> "ns";
-            case MICROSECONDS -> "us";
-            case MILLISECONDS -> "ms";
-            case SECONDS -> "s";
-            case MINUTES -> "m";
-            case HOURS -> "h";
-            case DAYS -> "d";
-        };
-    }
+public enum ReportType {
+    FILE,
+    CONSOLE,
+    UNDEFINED;
 }

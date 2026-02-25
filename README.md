@@ -27,7 +27,7 @@ Performance monitoring for Java applications through execution time tracking and
 <dependency>
     <groupId>dev.7ori</groupId>
     <artifactId>runtimeprofiler</artifactId>
-    <version>2.1.0</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 
@@ -35,14 +35,14 @@ Performance monitoring for Java applications through execution time tracking and
 
 ```gradle
 dependencies {
-    implementation 'dev.7ori:runtimeprofiler:2.1.0'
+    implementation 'dev.7ori:runtimeprofiler:3.0.0'
 }
 ```
 
 ### Other
 
 Download a `.jar` file from
-[releases](https://github.com/7orivorian/RuntimeProfiler/releases/tag/2.1.0).
+[releases](https://github.com/7orivorian/RuntimeProfiler/releases/tag/3.0.0).
 
 ## Building
 
@@ -63,18 +63,18 @@ public class Main {
         profiler.push("Section_A");
 
         profiler.push("Sub-Section_1"); // Included in the runtime of Section_A
-        /* Code to be profiled */
+        foo();
         profiler.swap("Sub-Section_2"); // Included in the runtime of Section_A
-        /* Code to be profiled */
+        bar();
         profiler.pop();
 
         profiler.swap("Section_B");
-        /* Code to be profiled */
+        foobar();
         profiler.pop();
 
         profiler.stop();
 
-        OutputWriter.HTML.writeToPath(profiler, new File("<output_dir>").toPath());
+        Reporter.write(profiler).to(System.out).format(ReportFormat.SIMPLE_PRINT).report();
     }
 }
 ```
