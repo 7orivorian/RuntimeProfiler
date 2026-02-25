@@ -19,6 +19,9 @@ Performance monitoring for Java applications through execution time tracking and
     - Output profiling data for in-depth analysis, reporting, &
       graphing.
 
+> [!TIP]
+> I am currently beta testing a visualizer for JSON-formatted reports, which can be found [here](https://7ori.dev/playground/rtpviewer).
+
 ## Importing
 
 ### Maven
