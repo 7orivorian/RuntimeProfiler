@@ -43,5 +43,5 @@ package dev.tori.runtimeprofiler.reporter;
 public enum ReportType {
     FILE,
     CONSOLE,
-    UNDEFINED;
+    UNDEFINED
 }
